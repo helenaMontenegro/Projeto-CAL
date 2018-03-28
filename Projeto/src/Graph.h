@@ -10,6 +10,7 @@
 #include <limits>
 #include <cmath>
 #include <cstddef>
+#include <string>
 #include "MutablePriorityQueue.h"
 
 using namespace std;
@@ -27,10 +28,13 @@ class Vertex {
 	T info;                // contents
 	vector<Edge<T> > adj;  // outgoing edges
 	bool visited;          // auxiliary field
+	bool visited2;			//auxiliary field for bidirectional dijkstra
 	double dist = 0;
 	Vertex<T> *path = NULL;
+	Vertex<T> *path2 = NULL;
 	int queueIndex = 0; 		// required by MutablePriorityQueue
-
+	string type;
+	string name;
 	bool processing = false;
 	void addEdge(Vertex<T> *dest, double w);
 
@@ -40,6 +44,10 @@ public:
 	T getInfo() const;
 	double getDist() const;
 	Vertex *getPath() const;
+	void setName(string name);
+	string getName() const;
+	void setType(string type);
+	string getType() const;
 	friend class Graph<T>;
 	friend class MutablePriorityQueue<Vertex<T>>;
 };
@@ -68,14 +76,16 @@ class Graph {
 
 public:
 	Vertex<T> *findVertex(const T &in) const;
+	Vertex<T> *findVertex(const string &local) const;
 	bool addVertex(const T &in);
 	bool addEdge(const T &sourc, const T &dest, double w);
 	int getNumVertex() const;
 	vector<Vertex<T> *> getVertexSet() const;
-
-	// Fp05 - single source
 	void dijkstraShortestPath(const T &s);
 	vector<T> getPath(const T &origin, const T &dest) const;
+	vector<T> getPath2(const T &origin, const T &dest) const;
+	T getClosestPark() const; //TODO
+	T dijkstraBidirectionalPath(const T &origin, const T &dest); //TODO
 };
 
 #endif /* GRAPH_H_ */

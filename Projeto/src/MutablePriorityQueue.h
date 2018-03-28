@@ -77,7 +77,14 @@ void MutablePriorityQueue<T>::heapifyUp(unsigned i) {
 
 template <class T>
 void MutablePriorityQueue<T>::decreaseKey(T *x) {
-	heapifyUp(x->queueIndex);
+	int i = 0;
+	for(; i < H.size(); i++)
+	{
+		if (H.at(i) == x)
+			break;
+	}
+	if(i != H.size())
+		heapifyUp(x->queueIndex);
 }
 
 template <class T>
