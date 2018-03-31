@@ -1,0 +1,46 @@
+118182107;;False
+118182111;Avenida Doutor Moreira de Sousa;True
+118182121;Rua da Feiteira;False
+118182194;Largo das Alminhas das Barrancas;True
+118182197;;True
+118182220;;False
+118182234;;False
+118182235;Travessa da Seada;False
+118250502;;False
+118250570;Rua da Feiteira;True
+160210248;Rua da Boavista;False
+160210249;Rua da Boavista;False
+160210250;Avenida Doutor Moreira de Sousa;False
+160210253;Avenida Doutor Moreira de Sousa;False
+160210254;Avenida Doutor Moreira de Sousa;False
+160210259;Largo das Alminhas das Barrancas;False
+160210262;Avenida Doutor Moreira de Sousa;True
+160210265;Avenida Doutor Moreira de Sousa;False
+160210269;Avenida Doutor Moreira de Sousa;False
+160525923;;False
+173094197;Rua da Feiteira;False
+173094259;Rua da Feiteira;False
+173094276;Rua da Feiteira;False
+200679853;;False
+200679854;Rua da Boavista;True
+200679856;;False
+200679857;Rua das Casas Queimadas;False
+200679955;;False
+200771002;;False
+200771005;;False
+200771006;;False
+200771007;;False
+200771008;;False
+200771009;;False
+200771012;;False
+200771014;;False
+200771118;;False
+200771119;;False
+200771120;;False
+484891381;;False
+557947179;Avenida Doutor Moreira de Sousa;False
+557947183;Largo das Alminhas das Barrancas;False
+557947188;Avenida Doutor Moreira de Sousa;False
+557947193;Avenida Doutor Moreira de Sousa;True
+557947200;Avenida Doutor Moreira de Sousa;True
+557947206;Avenida Doutor Moreira de Sousa;True
