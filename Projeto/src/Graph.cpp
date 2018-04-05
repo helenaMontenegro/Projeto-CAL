@@ -1,42 +1,22 @@
 #include "Graph.h"
-#include <iostream>
 
 using namespace std;
 
+/*********** VERTEX ***********/
 template <class T>
-Vertex<T>::Vertex(T in): info(in) {}
+Vertex<T>::Vertex(ifstream &in){
+		string aux;
 
-template <class T>
-void Vertex<T>::setName(string name)
-{
-	this->name = name;
-}
+		getline(in, aux, ';');
+		setId(atoi(aux.c_str()));
 
-template <class T>
-string Vertex<T>::getName() const
-{
-	return name;
-}
+		getline(in, aux, ';');
+		getline(in, aux, ';');
 
-template <class T>
-void Vertex<T>::setType(string type)
-{
-	this->type = type;
-}
-
-template <class T>
-string Vertex<T>::getType() const
-{
-	return type;
-}
-
-/*
- * Auxiliary function to add an outgoing edge to a vertex (this),
- * with a given destination vertex (d) and edge weight (w).
- */
-template <class T>
-void Vertex<T>::addEdge(Vertex<T> *d, double w) {
-	adj.push_back(Edge<T>(d, w));
+		getline(in, aux, ';');
+		setLat(atof(aux.c_str()));
+		getline(in, aux, ';');
+		setLon(atof(aux.c_str()));
 }
 
 template <class T>
@@ -50,23 +30,131 @@ T Vertex<T>::getInfo() const {
 }
 
 template <class T>
-double Vertex<T>::getDist() const {
-	return this->dist;
-}
-
-template <class T>
 Vertex<T> *Vertex<T>::getPath() const {
 	return this->path;
 }
 
 template <class T>
-int Graph<T>::getNumVertex() const {
-	return vertexSet.size();
+void Vertex<T>::setType(string type){
+	this->type = type;
 }
 
 template <class T>
-vector<Vertex<T> *> Graph<T>::getVertexSet() const {
-	return vertexSet;
+string Vertex<T>::getType() const {
+	return type;
+}
+
+template <class T>
+int Vertex<T>::getId() const {
+		return id;
+}
+
+template <class T>
+void Vertex<T>::setId(int id){
+		this->id = id;
+}
+
+template <class T>
+float Vertex<T>::getLat() const {
+		return lat;
+}
+
+template <class T>
+void Vertex<T>::setLat(float lat){
+		this->lat = lat;
+}
+
+template <class T>
+float Vertex<T>::getLon() const {
+		return lon;
+}
+
+template <class T>
+void Vertex<T>::setLon(float lon){
+		this->lon = lon;
+}
+
+/*
+ * Auxiliary function to add an outgoing edge to a vertex (this),
+ * with a given destination vertex (d) and edge weight (w).
+ */
+template <class T>
+void Vertex<T>::addEdge(Edge<T> *edg) {
+	adj.push_back(edg);
+}
+
+/*********** EDGE ***********/
+template <class T>
+Edge<T>::Edge(ifstream &in){
+	string aux;
+
+	getline(in, aux, ';');
+	setId(atoi(aux.c_str()));
+	getline(in, aux, ';');
+	setName(aux);
+	getline(in, aux, ';');
+	setTwoWay(aux);
+}
+
+template <class T>
+int Edge<T>::getId() const {
+		return id;
+}
+
+template <class T>
+void Edge<T>::setId(int id){
+		this->id = id;
+}
+
+template <class T>
+string Edge<T>::getName() const{
+		return name;
+}
+
+template <class T>
+void Edge<T>::setName(string name){
+		this->name = name;
+}
+
+template <class T>
+void Edge<T>::setTwoWay(string val){
+	if(val == "True"){
+		this->isTwoWay = true;
+	}else{
+		this->isTwoWay = false;
+	}
+}
+
+/*********** GRAPH ***********/
+template <class T>
+Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &connections_in, ifstream &poi_in){
+	while(!node_in.eof()){
+		Vertex<T> *temp = new Vertex<T>(node_in);
+		vertexSet.push_back(temp);
+	}
+
+	while(!edge_in.eof()){
+		Edge<T> *temp = new Edge<T>(edge_in);
+		edgeSet.push_back(temp);
+	}
+
+	while(!connections_in.eof()){
+		string aux;
+
+		getline(connections_in, aux, ';');
+		int id = atoi(aux.c_str());
+		getline(connections_in, aux, ';');
+		int ori = atoi(aux.c_str());
+		getline(connections_in, aux, ';');
+		int dest = atoi(aux.c_str());
+
+		Edge<T> *edg = findEdge(id);
+		Vertex<T> *vOri = findVertex(ori);
+		Vertex<T> *vDest = findVertex(dest);
+		edg -> dest = vDest;
+		vOri -> addEdge(edg);
+	}
+
 }
 
 /*
@@ -88,33 +176,23 @@ Vertex<T> * Graph<T>::findVertex(const string &local) const {
 	return NULL;
 }
 
-/*
- *  Adds a vertex with a given content or info (in) to a graph (this).
- *  Returns true if successful, and false if a vertex with that content already exists.
- */
 template <class T>
-bool Graph<T>::addVertex(const T &in) {
-	if ( findVertex(in) != NULL)
-		return false;
-	vertexSet.push_back(new Vertex<T>(in));
-	return true;
+Edge<T> *Graph<T>::findEdge(const T &in) const {
+		for(auto v : edgeSet)
+			if(v->id == in)
+				return v;
+		return NULL;
 }
 
-/*
- * Adds an edge to a graph (this), given the contents of the source and
- * destination vertices and the edge weight (w).
- * Returns true if successful, and false if the source or destination vertex does not exist.
- */
 template <class T>
-bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
-	auto v1 = findVertex(sourc);
-	auto v2 = findVertex(dest);
-	if (v1 == NULL || v2 == NULL)
-		return false;
-	v1->addEdge(v2,w);
-	return true;
+int Graph<T>::getNumVertex() const {
+	return vertexSet.size();
 }
 
+template <class T>
+vector<Vertex<T> *> Graph<T>::getVertexSet() const {
+	return vertexSet;
+}
 
 /**************** Single Source Shortest Path algorithms ************/
 
