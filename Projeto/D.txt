@@ -1,0 +1,14 @@
+1155452262;41.0467089;-8.5655571;Ponto de Interesse;Restaurante Tainha;0
+1155453012;41.0463988;-8.5653537;Parque;Parque Restaurante Tainha;2.5
+2107300160;41.04721;-8.56535;Parque;Parque Restaurante Tainha;2.5
+2107300165;41.04694;-8.565213;Parque;Parque Restaurante Tainha;2.5
+2107300174;41.04588;-8.564332;Parque;Parque Lidl;1.5
+2107300186;41.04622;-8.564328;Parque;Parque Lidl;1.5
+1725795360;41.0463994;-8.5637931;Ponto de Interesse;Lidl;0
+1324741515;41.0453085;-8.5684696;Bomba de Gasolina;Gasolina Pingo Doce;0
+1324746279;41.0458392;-8.5684831;Ponto de Interesse;Pingo Doce;0
+2106435865;41.0442526;-8.5642505;Ponto de Interesse;Minipreco;0
+2106435857;41.0435491;-8.5630787;Ponto de Interesse;Locanda Real;0
+1155452276;41.0427036;-8.5634972;Ponto de Interesse;Restaurante 5 Amigos;0
+2106435868;41.0432800;-8.5635481;Bomba de Gasolina;Galp;0
+2106445094;41.0451472;-8.5663590;Bomba de Gasolina;Gasolina;0
