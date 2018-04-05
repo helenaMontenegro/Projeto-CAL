@@ -1,0 +1,6 @@
+Avenida Doutor Moreira de Sousa;269392606;
+Rua da Feiteira;1329677992;
+Largo das Alminhas das Barrancas;1329677065;
+Travessa da Seada;1329678461;
+Rua da Boavista;2106444439;
+Rua das Casas Queimadas;1329678650;

@@ -1,0 +1,6 @@
+Restaurante Tainha;1155452262;
+Lidl;1725795360;
+Pingo Doce;1324746279;
+Minipreco;2106435865;
+Locanda Real;2106435857;
+Restaurante 5 Amigos;1155452276;
