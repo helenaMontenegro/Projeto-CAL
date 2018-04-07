@@ -1,21 +1,27 @@
 #include "Graph.h"
-
+#include <iostream>
+#define M_PI  3.141592653589793238462643383279502884
 using namespace std;
 
 /*********** VERTEX ***********/
+template <class T>
+Vertex<T>::Vertex(T in): info(in) {}
+
 template <class T>
 Vertex<T>::Vertex(ifstream &in){
 		string aux;
 
 		getline(in, aux, ';');
-		setId(atoi(aux.c_str()));
+		this->info = atoi(aux.c_str());
+		//TESTE:
+		//std::cout << "info: " << aux << endl;
 
 		getline(in, aux, ';');
 		getline(in, aux, ';');
 
 		getline(in, aux, ';');
 		setLat(atof(aux.c_str()));
-		getline(in, aux, ';');
+		getline(in, aux, '\n');
 		setLon(atof(aux.c_str()));
 }
 
@@ -40,18 +46,30 @@ void Vertex<T>::setType(string type){
 }
 
 template <class T>
+string Vertex<T>::getName() const {
+	return name;
+}
+
+template <class T>
+void Vertex<T>::setName(string name){
+	this->name = name;
+}
+
+template <class T>
+void Vertex<T>::setPrice(double price)
+{
+	this->price = price;
+}
+
+template <class T>
+double Vertex<T>::getPrice() const
+{
+	return price;
+}
+
+template <class T>
 string Vertex<T>::getType() const {
 	return type;
-}
-
-template <class T>
-int Vertex<T>::getId() const {
-		return id;
-}
-
-template <class T>
-void Vertex<T>::setId(int id){
-		this->id = id;
 }
 
 template <class T>
@@ -83,17 +101,25 @@ void Vertex<T>::addEdge(Edge<T> *edg) {
 	adj.push_back(edg);
 }
 
+template <class T>
+void Vertex<T>::addEdge(Vertex<T> *d, double w) {
+	adj.push_back(Edge<T>(d, w));
+}
+
 /*********** EDGE ***********/
 template <class T>
-Edge<T>::Edge(ifstream &in){
-	string aux;
+Edge<T>::Edge(Vertex<T> *d, double w) {
+	dest = d;
+	weight = w;
+}
 
-	getline(in, aux, ';');
-	setId(atoi(aux.c_str()));
-	getline(in, aux, ';');
-	setName(aux);
-	getline(in, aux, ';');
-	setTwoWay(aux);
+template <class T>
+Edge<T>::Edge(int id, Vertex<T> *vDest, string name, string twoWay, double w){
+		setId(id);
+		this->dest=vDest;
+		setName(name);
+		setTwoWay(twoWay);
+		setWeight(w);
 }
 
 template <class T>
@@ -125,36 +151,100 @@ void Edge<T>::setTwoWay(string val){
 	}
 }
 
+template <class T>
+void Edge<T>::setWeight(double w){
+		this->weight = w;
+}
+
 /*********** GRAPH ***********/
 template <class T>
-Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &connections_in, ifstream &poi_in){
-	while(!node_in.eof()){
+Graph<T>::Graph(){}
+
+template <class T>
+Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in){
+	//Vertex:
+	while (!node_in.eof()) {
 		Vertex<T> *temp = new Vertex<T>(node_in);
 		vertexSet.push_back(temp);
 	}
 
-	while(!edge_in.eof()){
-		Edge<T> *temp = new Edge<T>(edge_in);
-		edgeSet.push_back(temp);
-	}
+	//Edge:
+	while (!edge_in.eof()) {
+		string aux, name, twoWay;
 
-	while(!connections_in.eof()){
-		string aux;
-
-		getline(connections_in, aux, ';');
+		getline(edge_in, aux, ';');
 		int id = atoi(aux.c_str());
-		getline(connections_in, aux, ';');
-		int ori = atoi(aux.c_str());
-		getline(connections_in, aux, ';');
-		int dest = atoi(aux.c_str());
+		getline(edge_in, aux, ';');
+		int idOri = atoi(aux.c_str());
+		getline(edge_in, aux, ';');
+		int idDest = atoi(aux.c_str());
+		getline(edge_in, name, ';');
+		getline(edge_in, twoWay, ';');
 
-		Edge<T> *edg = findEdge(id);
-		Vertex<T> *vOri = findVertex(ori);
-		Vertex<T> *vDest = findVertex(dest);
-		edg -> dest = vDest;
-		vOri -> addEdge(edg);
+		Vertex<T> *vDest = findVertex(idDest);
+		if(vDest->getName() == "")
+			vDest->setName(name);
+		Vertex<T> *vOri = findVertex(idOri);
+		if(vOri->getName() == "")
+			vOri->setName(name);
+
+		//Calculo do peso da edge
+		//double w = peso(vOri, vDest);
+		/*if(twoWay == "True") {
+			Edge<T> *temp = new Edge<T>(id, vDest, name, twoWay, w);
+			Edge<T> *temp2 = new Edge<T>(id, vOri, name, twoWay, w);
+			vOri->addEdge(temp);
+			vDest->addEdge(temp2);
+		}*/
 	}
 
+	//Points of interest:
+	string aux;
+	while (!poi_in.eof()) {
+
+		getline(poi_in, aux, ';');
+		int id = atoi(aux.c_str());
+		getline(poi_in, aux, ';');
+		float lat = atof(aux.c_str());
+		getline(poi_in, aux, ';');
+		float lon = atof(aux.c_str());
+		getline(poi_in, aux, ';');
+		string type = aux;
+		getline(poi_in, aux, ';');
+		string name = aux;
+		getline(poi_in, aux, '\n');
+		int price = atoi(aux.c_str());
+
+		lat = lat * M_PI / 180.0;
+		lon = lon * M_PI / 180.0;
+
+		Vertex<T> *v = findVertex(id);
+		if (v == NULL) {
+			v = new Vertex<T>(id);
+			v->setLat(lat);
+			v->setLon(lon);
+			vertexSet.push_back(v);
+		}
+		v->setName(name);
+		v->setType(type);
+		v->setPrice(price);
+	}
+
+	while(!edge_poi_in.eof())
+	{
+		getline(edge_poi_in, aux, ';');
+		int id = atoi(aux.c_str());
+		getline(edge_poi_in, aux, ';');
+		int ori = atoi(aux.c_str());
+		getline(edge_poi_in, aux, ';');
+		int dest = atoi(aux.c_str());
+		Vertex<T> *v = findVertex(ori);
+		Vertex<T> *v1 = findVertex(dest);
+		//weight = calcDist(v->getLat(),v->getLon(),v1->getLat(),v1->getLon());
+		//addEdge(ori,dest,weight);
+		//addEdge(dest,ori,weight);
+		//set edge as true
+	}
 }
 
 /*
@@ -177,11 +267,21 @@ Vertex<T> * Graph<T>::findVertex(const string &local) const {
 }
 
 template <class T>
-Edge<T> *Graph<T>::findEdge(const T &in) const {
-		for(auto v : edgeSet)
-			if(v->id == in)
-				return v;
-		return NULL;
+bool Graph<T>::addVertex(const T &in) {
+	if ( findVertex(in) != NULL)
+		return false;
+	vertexSet.push_back(new Vertex<T>(in));
+	return true;
+}
+
+template <class T>
+bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
+	auto v1 = findVertex(sourc);
+	auto v2 = findVertex(dest);
+	if (v1 == NULL || v2 == NULL)
+		return false;
+	v1->addEdge(v2,w);
+	return true;
 }
 
 template <class T>
@@ -195,6 +295,7 @@ vector<Vertex<T> *> Graph<T>::getVertexSet() const {
 }
 
 /**************** Single Source Shortest Path algorithms ************/
+
 
 template<class T>
 void Graph<T>::dijkstraShortestPath(const T &origin) {
@@ -222,6 +323,182 @@ void Graph<T>::dijkstraShortestPath(const T &origin) {
 					if (v->dist > v1->dist + v1->adj.at(i).weight) {
 						v->dist = v1->dist + v1->adj.at(i).weight;
 						v->path = v1;
+						q.decreaseKey(v);
+					}
+				}
+			}
+		}
+	}
+}
+
+template<class T>
+T Graph<T>::dijkstraClosestPark(const T &origin) {
+	double minDist = INF;
+	T park;
+	string parque = "Parque";
+	MutablePriorityQueue<Vertex<T> > q;
+	Vertex<T> *v1 = findVertex(origin);
+	q.insert(v1);
+	for(size_t j = 0; j < vertexSet.size(); j++)
+	{
+		vertexSet.at(j)->visited = false;
+		vertexSet.at(j)->dist = INF;
+		vertexSet.at(j)->path = NULL;
+	}
+	v1->visited = true;
+	v1->dist = 0;
+	while (!q.empty()) {
+		v1 = q.extractMin();
+		for (size_t i = 0; i < v1->adj.size(); i++) {
+			Vertex<T> *v = v1->adj.at(i).dest;
+			if (v->info != origin) {
+				if (!v->visited) {
+					if(v->dist > v1->dist + v1->adj.at(i).weight) {
+						v->dist = v1->dist + v1->adj.at(i).weight;
+						v->path = v1;
+					}
+					if(v->type == parque)
+					{
+						v->visited = true;
+						if(v->dist < minDist)
+						{
+							minDist = v->dist;
+							park = v->info;
+						}
+					}
+					else if(v->dist < minDist)
+					{
+						v->visited = true;
+						q.insert(v);
+					}
+				} else {
+					if (v->dist > v1->dist + v1->adj.at(i).weight) {
+						v->dist = v1->dist + v1->adj.at(i).weight;
+						v->path = v1;
+						if(v->type == parque)
+						{
+							if(v->dist < minDist)
+							{
+								minDist = v->dist;
+								park = v->info;
+							}
+						}
+						q.decreaseKey(v);
+					}
+				}
+			}
+		}
+	}
+	return park;
+}
+
+template<class T>
+T Graph<T>::dijkstraCheapestPark(const T &origin, double maxDist) {
+	double minPrice = -1;
+	T park;
+	string parque = "Parque";
+	MutablePriorityQueue<Vertex<T> > q;
+	Vertex<T> *v1 = findVertex(origin);
+	q.insert(v1);
+	for(size_t j = 0; j < vertexSet.size(); j++)
+	{
+		vertexSet.at(j)->visited = false;
+		vertexSet.at(j)->dist = INF;
+		vertexSet.at(j)->path = NULL;
+	}
+	v1->visited = true;
+	v1->dist = 0;
+	while (!q.empty()) {
+		v1 = q.extractMin();
+		for (size_t i = 0; i < v1->adj.size(); i++) {
+			Vertex<T> *v = v1->adj.at(i).dest;
+			if (v->info != origin) {
+				if (!v->visited) {
+					if(v->dist > v1->dist + v1->adj.at(i).weight) {
+						v->dist = v1->dist + v1->adj.at(i).weight;
+						v->path = v1;
+					}
+					if(v->type == parque)
+					{
+						v->visited = true;
+						if((v->price < minPrice || minPrice == -1) && v->dist <= maxDist)
+						{
+							minPrice = v->price;
+							park = v->info;
+						}
+					}
+					else if(v->dist <= maxDist)
+					{
+						v->visited = true;
+						q.insert(v);
+					}
+				} else {
+					if (v->dist > v1->dist + v1->adj.at(i).weight) {
+						v->dist = v1->dist + v1->adj.at(i).weight;
+						v->path = v1;
+						if(v->type == parque)
+						{
+							if ((v->price < minPrice || minPrice == -1) && v->dist <= maxDist) {
+								minPrice = v->price;
+								park = v->info;
+							}
+						}
+						q.decreaseKey(v);
+					}
+				}
+			}
+		}
+	}
+	if(minPrice != -1)
+		return park;
+	return -1;
+}
+
+template<class T>
+void Graph<T>::dijkstraShortestPath(const T &origin, const T &dest)
+{
+	double minDist = INF;
+	MutablePriorityQueue<Vertex<T> > q;
+	Vertex<T> *v1 = findVertex(origin);
+	q.insert(v1);
+	for(size_t j = 0; j < vertexSet.size(); j++)
+	{
+		vertexSet.at(j)->visited = false;
+		vertexSet.at(j)->dist = INF;
+		vertexSet.at(j)->path = NULL;
+	}
+	v1->visited = true;
+	v1->dist = 0;
+	while (!q.empty()) {
+		v1 = q.extractMin();
+		for (size_t i = 0; i < v1->adj.size(); i++) {
+			Vertex<T> *v = v1->adj.at(i).dest;
+			if (v->info != origin) {
+				if (!v->visited) {
+					if(v->dist > v1->dist + v1->adj.at(i).weight) {
+						v->dist = v1->dist + v1->adj.at(i).weight;
+						v->path = v1;
+					}
+					if(v->info == dest)
+					{
+						v->visited = true;
+						if(v->dist < minDist)
+							minDist = v->dist;
+					}
+					else if(v->dist < minDist)
+					{
+						v->visited = true;
+						q.insert(v);
+					}
+				} else {
+					if (v->dist > v1->dist + v1->adj.at(i).weight) {
+						v->dist = v1->dist + v1->adj.at(i).weight;
+						v->path = v1;
+						if(v->info == dest)
+						{
+							if(v->dist < minDist)
+								minDist = v->dist;
+						}
 						q.decreaseKey(v);
 					}
 				}
