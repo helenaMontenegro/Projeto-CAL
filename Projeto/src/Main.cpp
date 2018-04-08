@@ -11,22 +11,22 @@ using namespace std;
 
 class Main {
 public:
-	GraphViewer *gv;
+	//GraphViewer *gv;
 	Graph<int> graph;
 	Main(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in);
 };
 
 Main::Main(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in)
 {
-	gv = new GraphViewer(600, 600, false);
+	/*gv = new GraphViewer(600, 600, false);
 	gv->createWindow(600, 600);
 	gv->defineVertexColor("blue");
-	gv->defineEdgeColor("black");
+	gv->defineEdgeColor("black");*/
 	Graph<int> g(node_in, edge_in, poi_in, edge_poi_in);
 	graph = g;
 }
 
-int showPath(Main m, int distance, bool fuel, int origin, int dest)
+int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 {
 	vector<int> v, v1, v2;
 	string r = "Rua";
@@ -37,14 +37,23 @@ int showPath(Main m, int distance, bool fuel, int origin, int dest)
 		p = m.graph.dijkstraCheapestPark(dest, distance);
 	if(p == -1)
 	{
-		cout << "There is no park available" << endl;
+		cout << "Nao ha nenhum parque disponivel." << endl;
 		return -1;
 	}
+	Vertex<int> *parque = m.graph.findVertex(p);
+	cout << "O parque mais indicado e o " << parque->getName()
+			<< " cuja distancia ao seu destino e " << parque->getDist()
+			<< " e cujo preco e " << parque->getPrice() << " euros." << endl << endl;
 	v = m.graph.getPath(dest,p);
 
 	if(fuel)
 	{
 		int g = m.graph.dijkstraBidirectionalPath(origin,p);
+		Vertex<int> *fuel = m.graph.findVertex(g);
+		cout << "A bomba de gasolina mais indicada e: " << fuel->getName()
+				<< " que se situa a " << fuel->getDist()
+				<< " de distancia a origem e a " << fuel->getDist2()
+				<< " de distancia ao parque." << endl << endl;
 		v1 = m.graph.getPath(origin, g);
 		v2 = m.graph.getPath2(p, g);
 	}
@@ -56,7 +65,7 @@ int showPath(Main m, int distance, bool fuel, int origin, int dest)
 	int x, n = 0;
 	for(size_t i = 0; i < v1.size(); i++)
 	{
-		if(m.graph.findVertex(v1.at(i))->getType() == r)
+		/*if(m.graph.findVertex(v1.at(i))->getType() == r)
 			m.gv->setVertexColor(v1.at(i), "pink");
 		if (i != 0)
 		{
@@ -65,10 +74,13 @@ int showPath(Main m, int distance, bool fuel, int origin, int dest)
 		}
 		Sleep(600);
 		x = v1.at(i);
-		m.gv->rearrange();
+		m.gv->rearrange();*/
+		cout << m.graph.findVertex(v1.at(i))->getName() << endl;
 	}
 	if (fuel) {
 		for (size_t i = 0; i < v2.size(); i++) {
+			cout << m.graph.findVertex(v2.at(i))->getName() << endl;
+			/*
 			if(m.graph.findVertex(v2.at(i))->getType() == r)
 				m.gv->setVertexColor(v2.at(i), "pink");
 			if (i != 0)
@@ -78,11 +90,13 @@ int showPath(Main m, int distance, bool fuel, int origin, int dest)
 			}
 			Sleep(600);
 			x = v2.at(i);
-			m.gv->rearrange();
+			m.gv->rearrange();*/
 		}
 	}
 	for(int i = v.size()-1; i >= 0; i--)//size_t i = 0; i < v.size(); i++)
 	{
+		cout << m.graph.findVertex(v.at(i))->getName() << endl;
+		/*
 		if(m.graph.findVertex(v.at(i))->getType() == r)
 			m.gv->setVertexColor(v.at(i), "green");
 		if(i != (int) v.size()-1)
@@ -93,9 +107,9 @@ int showPath(Main m, int distance, bool fuel, int origin, int dest)
 		}
 		Sleep(600);
 		x = v.at(i);
-		m.gv->rearrange();
+		m.gv->rearrange();*/
 	}
-	getchar();
+	//getchar();
 	return 0;
 }
 
@@ -123,36 +137,19 @@ int main(){
 
 	Main m(in1,in2,in3,in4);
 	/*TESTES*/
-	Vertex<int> *v = m.graph.findVertex(269392602);
-	if(v == NULL)
-		cout << "error" << endl;
-	else
-	{
-		cout << v->getLat() << endl;
-		cout << v->getName() << endl;
-		cout << v->getType() << endl;
-		cout << v->getLon() << endl;
-	}
-	v = m.graph.findVertex(1155452262);
-	cout << "next Vertex" << endl;
-	if (v == NULL)
-		cout << "error" << endl;
-	else {
-		cout << v->getLat() << endl;
-		cout << v->getName() << endl;
-		cout << v->getType() << endl;
-		cout << v->getLon() << endl;
-	}
-	v = m.graph.findVertex("Lidl");
-	cout << "next Vertex" << endl;
-	if (v == NULL)
-		cout << "error" << endl;
-	else {
-		cout << v->getLat() << endl;
-		cout << v->getInfo() << endl;
-		cout << v->getType() << endl;
-		cout << v->getLon() << endl;
-	}
+	Vertex<int> *dest = m.graph.findVertex("Lidl");
+	Vertex<int> *ori = m.graph.findVertex("Avenida Doutor Moreira de Sousa");
+	/*//int p = m.graph.dijkstraClosestPark(dest->getInfo());
+	//int p = m.graph.dijkstraCheapestPark(dest->getInfo(), 100);
+	int p = m.graph.dijkstraCheapestPark(dest->getInfo(), 7);
+	cout << p << endl;
+	if (p != -1) {
+		Vertex<int> *parque = m.graph.findVertex(p);
+		cout << parque->getName() << endl;
+		cout << parque->getType() << endl;
+		cout << parque->getDist() << endl;
+	}*/
+	showPath(m,-1,true,ori->getInfo(), dest->getInfo());
 	return 0;
 }
 

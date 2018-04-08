@@ -32,6 +32,7 @@ class Vertex {
 	bool visited = false;         //Auxiliary field
 	bool visited2 = false;				//Auxiliary field for bidirectional dijkstra
 	double dist = 0;
+	double dist2 = 0;
 	Vertex<T> *path = NULL;
 	Vertex<T> *path2 = NULL;
 	int queueIndex = 0; 					//Required by MutablePriorityQueue
@@ -47,6 +48,8 @@ public:
 	Vertex(ifstream &in);
 	bool operator<(Vertex<T> & vertex) const;								//Required by MutablePriorityQueue
 	T getInfo() const;
+	double getDist() const;
+	double getDist2() const;
 	Vertex *getPath() const;
 	void setType(string type);
 	string getType() const;
@@ -81,6 +84,7 @@ public:
 	string getName() const;
 	void setName(string name);
 	void setTwoWay(string val);
+	bool getTwoWay();
 	void setWeight(double w);
 	friend class Graph<T>;
 	friend class Vertex<T>;

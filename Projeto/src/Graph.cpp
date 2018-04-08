@@ -13,8 +13,6 @@ Vertex<T>::Vertex(ifstream &in){
 
 		getline(in, aux, ';');
 		this->info = atoi(aux.c_str());
-		//TESTE:
-		//std::cout << "info: " << aux << endl;
 
 		getline(in, aux, ';');
 		getline(in, aux, ';');
@@ -33,6 +31,16 @@ bool Vertex<T>::operator<(Vertex<T> & vertex) const {
 template <class T>
 T Vertex<T>::getInfo() const {
 	return this->info;
+}
+
+template <class T>
+double Vertex<T>::getDist() const {
+	return dist;
+}
+
+template <class T>
+double Vertex<T>::getDist2() const {
+	return dist2;
 }
 
 template <class T>
@@ -98,7 +106,7 @@ void Vertex<T>::setLon(float lon){
  */
 template <class T>
 void Vertex<T>::addEdge(Edge<T> *edg) {
-	adj.push_back(edg);
+	adj.push_back(*edg);
 }
 
 template <class T>
@@ -152,6 +160,11 @@ void Edge<T>::setTwoWay(string val){
 }
 
 template <class T>
+bool Edge<T>::getTwoWay(){
+	return isTwoWay;
+}
+
+template <class T>
 void Edge<T>::setWeight(double w){
 		this->weight = w;
 }
@@ -189,13 +202,12 @@ Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream
 			vOri->setName(name);
 
 		//Calculo do peso da edge
-		//double w = peso(vOri, vDest);
-		/*if(twoWay == "True") {
-			Edge<T> *temp = new Edge<T>(id, vDest, name, twoWay, w);
+		double w = 1;//peso(vOri, vDest);
+
+			Edge<T> *temp = new Edge<T>(id, vDest, name, "True", w);
 			Edge<T> *temp2 = new Edge<T>(id, vOri, name, twoWay, w);
 			vOri->addEdge(temp);
 			vDest->addEdge(temp2);
-		}*/
 	}
 
 	//Points of interest:
@@ -213,7 +225,7 @@ Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream
 		getline(poi_in, aux, ';');
 		string name = aux;
 		getline(poi_in, aux, '\n');
-		int price = atoi(aux.c_str());
+		double price = atof(aux.c_str());
 
 		lat = lat * M_PI / 180.0;
 		lon = lon * M_PI / 180.0;
@@ -236,13 +248,15 @@ Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream
 		int id = atoi(aux.c_str());
 		getline(edge_poi_in, aux, ';');
 		int ori = atoi(aux.c_str());
-		getline(edge_poi_in, aux, ';');
+		getline(edge_poi_in, aux, '\n');
 		int dest = atoi(aux.c_str());
 		Vertex<T> *v = findVertex(ori);
 		Vertex<T> *v1 = findVertex(dest);
-		//weight = calcDist(v->getLat(),v->getLon(),v1->getLat(),v1->getLon());
-		//addEdge(ori,dest,weight);
-		//addEdge(dest,ori,weight);
+		double weight = 1;//calcDist(v->getLat(),v->getLon(),v1->getLat(),v1->getLon());
+		Edge<T> *temp = new Edge<T>(id, v1, "", "True", weight);
+		v->addEdge(temp);
+		Edge<T> *temp1 = new Edge<T>(id, v, "", "True", weight);
+		v1->addEdge(temp1);
 		//set edge as true
 	}
 }
@@ -472,6 +486,7 @@ void Graph<T>::dijkstraShortestPath(const T &origin, const T &dest)
 	while (!q.empty()) {
 		v1 = q.extractMin();
 		for (size_t i = 0; i < v1->adj.size(); i++) {
+			/*if( v1->adj.at(i).getTwoWay()){*/
 			Vertex<T> *v = v1->adj.at(i).dest;
 			if (v->info != origin) {
 				if (!v->visited) {
@@ -503,6 +518,7 @@ void Graph<T>::dijkstraShortestPath(const T &origin, const T &dest)
 					}
 				}
 			}
+			//}
 		}
 	}
 }
@@ -517,6 +533,7 @@ vector<T> Graph<T>::getPath(const T &origin, const T &dest) const{
 	{
 		v1 = v1->path;
 		inverted_res.push_back(v1->info);
+		//cout << v1->getInfo() << endl;
 	}
 	for(int i = inverted_res.size()-1; i >= 0; i--)
 		res.push_back(inverted_res.at(i));
@@ -566,6 +583,7 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 		vertexSet.at(j)->visited = false;
 		vertexSet.at(j)->visited2 = false;
 		vertexSet.at(j)->dist = 0;
+		vertexSet.at(j)->dist2 = 0;
 		vertexSet.at(j)->path = NULL;
 		vertexSet.at(j)->path2 = NULL;
 	}
@@ -575,7 +593,7 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 		v1 = q.extractMin();
 		v2 = q1.extractMin();
 		for (size_t i = 0; i < v1->adj.size() || i < v2->adj.size(); i++) {
-			if (i < v1->adj.size()) {
+			if (i < v1->adj.size() && v1->adj.at(i).getTwoWay()) {
 				Vertex<T> *v = v1->adj.at(i).dest;
 				if (v->info != origin) {
 					if (!v->visited) {
@@ -594,17 +612,17 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 						return v->info;
 				}
 			}
-			if (i < v2->adj.size()) {
+			if (i < v2->adj.size() && v2->adj.at(i).getTwoWay()) {
 				Vertex<T> *v3 = v2->adj.at(i).dest;
 				if (v3->info != dest) {
 					if (!v3->visited2) {
 						v3->visited2 = true;
-						v3->dist = v2->dist + v2->adj.at(i).weight;
+						v3->dist2 = v2->dist2 + v2->adj.at(i).weight;
 						v3->path2 = v2;
 						q1.insert(v3);
 					} else {
-						if (v3->dist > v2->dist + v2->adj.at(i).weight) {
-							v3->dist = v2->dist + v2->adj.at(i).weight;
+						if (v3->dist2 > v2->dist2 + v2->adj.at(i).weight) {
+							v3->dist2 = v2->dist2 + v2->adj.at(i).weight;
 							v3->path2 = v2;
 							q1.decreaseKey(v3);
 						}
@@ -615,4 +633,5 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 			}
 		}
 	}
+	return -1;
 }
