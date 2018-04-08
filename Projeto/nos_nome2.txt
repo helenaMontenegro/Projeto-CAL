@@ -9,3 +9,11 @@
 8;Rua
 9;Rua
 10;Parque
+11;Parque
+12;Parque
+13;Parque
+14;Rua
+15;Pingo Doce
+16;Lidl
+17;Jumbo
+18;Continente

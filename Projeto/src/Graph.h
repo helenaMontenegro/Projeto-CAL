@@ -101,7 +101,7 @@ public:
 	Vertex<T> *findVertex(const T &in) const;
 	Vertex<T> *findVertex(const string &local) const;
 	bool addVertex(const T &in);
-	bool addEdge(const T &sourc, const T &dest, double w);
+	bool addEdge(const int id, const T &sourc, const T &dest, double w);
 	int getNumVertex() const;
 	vector<Vertex<T> *> getVertexSet() const;
 	void dijkstraShortestPath(const T &s);

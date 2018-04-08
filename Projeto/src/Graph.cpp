@@ -289,12 +289,14 @@ bool Graph<T>::addVertex(const T &in) {
 }
 
 template <class T>
-bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
+bool Graph<T>::addEdge(const int id, const T &sourc, const T &dest, double w) {
+	//int id, Vertex<T> *vDest, string name, string twoWay, double w
 	auto v1 = findVertex(sourc);
 	auto v2 = findVertex(dest);
+	Edge<T> *e = new Edge<T>(id, v2, "", "True", w);
 	if (v1 == NULL || v2 == NULL)
 		return false;
-	v1->addEdge(v2,w);
+	v1->addEdge(e);
 	return true;
 }
 
