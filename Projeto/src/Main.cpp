@@ -7,6 +7,10 @@
 #include <sstream>
 #include <vector>
 #include <cstddef>
+
+#define MAX_X 1920
+#define MAX_Y 1080
+
 using namespace std;
 
 class Main {
@@ -17,6 +21,11 @@ public:
 	Main(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in);
 	int buildGraphs();
 	void removeEdges();
+	double largestLat, largestLong, smallestLat, smallestLong;
+	void getMaxMinLatLong(ifstream &in);
+	int convertLongitudeToX(double longitude);
+	int convertLatitudeToY(double latitude);
+	void convertFile(ifstream &in);
 };
 
 Main::Main()
@@ -139,6 +148,61 @@ int Main::buildGraphs()
 	removeEdges();
 	return 0;
 }
+
+
+void Main::convertFile(ifstream &in){
+	 ofstream myfile ("converted.txt");
+
+}
+
+void Main::getMaxMinLatLong(ifstream &in){
+    string aux;
+    double lat, longi;
+
+    getline(in, aux, ';');
+    getline(in, aux, ';');
+    getline(in, aux, ';');
+
+    //initialization of the initial values
+    getline(in, aux, ';');
+    smallestLat = atof(aux.c_str());
+    largestLat =atof(aux.c_str());
+    getline(in, aux, '\n');
+    smallestLong =atof(aux.c_str());
+    largestLong = atof(aux.c_str());
+
+    while(!in.eof()){
+        //ignoring  id and values in degrees
+        getline(in, aux, ';');
+        getline(in, aux, ';');
+        getline(in, aux, ';');
+        //--------------------------------
+        getline(in, aux, ';');
+        lat = atof(aux.c_str());
+        getline(in, aux, '\n');
+        longi =atof(aux.c_str());
+
+        if(lat > largestLat) {
+            largestLat = lat;
+        } else if(lat < smallestLat) {
+            smallestLat = lat;
+        }
+        if(longi > largestLong) {
+            largestLong = longi;
+        } else if(longi < smallestLong) {
+            smallestLong = longi;
+        }
+    }
+}
+
+int Main::convertLongitudeToX(double longitude) {
+	return floor((longitude - smallestLong) * MAX_X / (largestLong - smallestLong));
+}
+
+int Main::convertLatitudeToY(double latitude) {
+	return floor((latitude - smallestLat) * MAX_Y / (largestLat - smallestLat));
+}
+
 
 int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 {
@@ -309,6 +373,56 @@ int showPath2(Main &m, int distance, bool fuel, int origin, int dest)
 	return 0;
 }
 
+int complexo()
+{
+	Main m;
+	if (m.buildGraphs() != 0)
+		return 1;
+	int origin, dest;
+	char petrolStation;
+	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
+	while (1) {
+		cout << "Qual a origem? ";
+		cin >> origin;
+		if (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(100, '\n');
+			cout << "Origem invalida. Tente novamente." << endl;
+		} else {
+			Vertex<int> *v = m.graph.findVertex(origin);
+			if (v == NULL || v->getType() != r)
+				cout << "Origem invalida. Tente novamente." << endl;
+			else
+				break;
+		}
+	}
+	while (1) {
+		cout << "Qual o destino? ";
+		cin >> dest;
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(100, '\n');
+			cout << "Origem invalida. Tente novamente." << endl;
+		} else {
+			Vertex<int> *v = m.graph.findVertex(dest);
+			if (v == NULL || v->getType() == r || v->getType() == b || v->getType() == p)
+				break;
+		}
+	}
+
+	int distance = -1; //-1 -> by distance; else -> by price
+	bool fuel = true; //the car needs fuel
+
+	m.graph.findVertex(11)->setPrice(13);
+	m.graph.findVertex(13)->setPrice(9);
+	m.graph.findVertex(12)->setPrice(5);
+	m.graph.findVertex(10)->setPrice(12);
+	showPath(m, distance, fuel, origin, dest);
+	getchar();
+	return 0;
+}
+
 int simples()
 {
 	Main m;
@@ -359,6 +473,7 @@ int simples()
 	return 0;
 }
 
+
 int main(){
 	string exemplo, s = "simples", c = "complexo";
 	while (1) {
@@ -369,7 +484,10 @@ int main(){
 			simples();
 			return 0;
 		}
-		if(exemplo == c)
+		if(exemplo == c){
+			//complexo();
+			return 0;
+		}
 			break;
 	}
 
@@ -395,6 +513,7 @@ int main(){
 	}
 
 	Main m(in1,in2,in3,in4);
+	//m.getMaxMinLatLong(in1);
 	/*TESTES*/
 	Vertex<int> *dest = m.graph.findVertex("Lidl");
 	Vertex<int> *ori = m.graph.findVertex("Avenida Doutor Moreira de Sousa");
