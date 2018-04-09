@@ -1,2 +1,5 @@
 
 .DS_Store
+*.xml
+*.iml
+cmake-build-debug/CMakeFiles/clion-log.txt

@@ -11,6 +11,9 @@
 #define MAX_X 1920
 #define MAX_Y 1080
 
+double largestLat, largestLong, smallestLat, smallestLong;
+string convertedFilepath;
+
 using namespace std;
 
 class Main {
@@ -151,9 +154,38 @@ int Main::buildGraphs()
 
 
 void Main::convertFile(ifstream &in){
-	 ofstream myfile ("converted.txt");
+    ofstream converted;
+    convertedFilepath = "converted.txt";
+
+    converted.open(convertedFilepath);
+
+    string aux;
+    double lat, longi;
+    int x, y;
+    string id;
+
+
+    while(!in.eof()){
+
+        getline(in, id, ';');
+        getline(in, aux, ';');
+        getline(in, aux, ';');
+        //--------------------------------
+        getline(in, aux, ';');
+        lat = atof(aux.c_str());
+        getline(in, aux, '\n');
+        longi =atof(aux.c_str());
+        x = convertLongitudeToX(longi);
+        y = convertLatitudeToY(lat);
+
+        converted << id << ";" << x << ";" << y << endl;
+    }
+
+
+    converted.close();
 
 }
+
 
 void Main::getMaxMinLatLong(ifstream &in){
     string aux;
