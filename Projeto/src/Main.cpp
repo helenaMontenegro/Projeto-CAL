@@ -528,6 +528,10 @@ int main(){
 		cerr << "A.txt not loaded" << endl;
 		return 1;
 	}
+	getMaxMinLatLong(in1);
+    in1.clear();
+    in1.seekg(0, ios::beg);
+    convertFile(in1);//creates a file called converted.txt
 	ifstream in2("BeC.txt");
 	if (!in1) {
 		cerr << "BeC.txt not loaded" << endl;
