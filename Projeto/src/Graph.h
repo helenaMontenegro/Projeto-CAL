@@ -61,6 +61,7 @@ public:
 	void setX(int x);
 	int getY() const;
 	void setY(int y);
+	vector<Edge<T>> getEdges() { return adj; }
 	void addEdge(Edge<T> *edg);
 	friend class Graph<T>;
 	friend class MutablePriorityQueue<Vertex<T>>;
@@ -74,7 +75,8 @@ class Edge {
 	double weight = 0;         			//Edge weight
 	string name;										//Name of the street
 	int id = 0;											//Id attributed by the parser
-	bool isTwoWay = false;					//Road is two ways or not
+	bool isTwoWay = true;					//Road is two ways or not
+	bool byCar = true;
 public:
 	Edge(Vertex<T> *d, double w);
 	Edge(int id, Vertex<T> *vDest, string name, string twoWay, double w);
@@ -82,9 +84,12 @@ public:
 	int getId() const;
 	void setId(int id);
 	string getName() const;
+	Vertex<T>* getDest() const { return dest; }
 	void setName(string name);
 	void setTwoWay(string val);
 	bool getTwoWay();
+	void setBycar(bool val) { this->byCar = val; }
+	bool getByCar() const { return byCar; }
 	void setWeight(double w);
 	friend class Graph<T>;
 	friend class Vertex<T>;
