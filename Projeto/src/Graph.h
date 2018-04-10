@@ -40,8 +40,8 @@ class Vertex {
 	string name = "";
 	double price;
 	bool processing = false;									//Id attributed by the parser
-	float lat = 0;								//Latitude in radians
-	float lon = 0;								//Longitude in radians
+	int x = 0;								//Latitude in radians
+	int y = 0;								//Longitude in radians
 	void addEdge(Vertex<T> *dest, double w);
 public:
 	Vertex(T in);
@@ -57,10 +57,10 @@ public:
 	string getName() const;
 	void setPrice(double price);
 	double getPrice() const;
-	float getLat() const;
-	void setLat(float lat);
-	float getLon() const;
-	void setLon(float lon);
+	int getX() const;
+	void setX(int x);
+	int getY() const;
+	void setY(int y);
 	void addEdge(Edge<T> *edg);
 	friend class Graph<T>;
 	friend class MutablePriorityQueue<Vertex<T>>;

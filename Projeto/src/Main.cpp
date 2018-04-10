@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstddef>
 
+#define M_PI  3.141592653589793238462643383279502884
 #define MAX_X 1920
 #define MAX_Y 1080
 
@@ -15,7 +16,6 @@ double largestLat, largestLong, smallestLat, smallestLong;
 string convertedFilepath;
 
 using namespace std;
-
 class Main {
 public:
 	GraphViewer *gv;
@@ -24,11 +24,6 @@ public:
 	Main(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in);
 	int buildGraphs();
 	void removeEdges();
-	double largestLat, largestLong, smallestLat, smallestLong;
-	void getMaxMinLatLong(ifstream &in);
-	int convertLongitudeToX(double longitude);
-	int convertLatitudeToY(double latitude);
-	void convertFile(ifstream &in);
 };
 
 Main::Main()
@@ -147,13 +142,20 @@ int Main::buildGraphs()
 	}
 	in.close();
 	getchar();
-	Sleep(10000);
+	Sleep(3000);
 	removeEdges();
 	return 0;
 }
 
+int convertLongitudeToX(double longitude) {
+	return floor((longitude - smallestLong) * MAX_X / (largestLong - smallestLong));
+}
 
-void Main::convertFile(ifstream &in){
+int convertLatitudeToY(double latitude) {
+	return floor((latitude - smallestLat) * MAX_Y / (largestLat - smallestLat));
+}
+
+void convertFile(ifstream &in){
     ofstream converted;
     convertedFilepath = "converted.txt";
 
@@ -164,7 +166,6 @@ void Main::convertFile(ifstream &in){
     int x, y;
     string id;
 
-
     while(!in.eof()){
 
         getline(in, id, ';');
@@ -172,9 +173,9 @@ void Main::convertFile(ifstream &in){
         getline(in, aux, ';');
         //--------------------------------
         getline(in, aux, ';');
-        lat = atof(aux.c_str());
+        longi = atof(aux.c_str());
         getline(in, aux, '\n');
-        longi =atof(aux.c_str());
+        lat =atof(aux.c_str());
         x = convertLongitudeToX(longi);
         y = convertLatitudeToY(lat);
 
@@ -186,8 +187,7 @@ void Main::convertFile(ifstream &in){
 
 }
 
-
-void Main::getMaxMinLatLong(ifstream &in){
+void getMaxMinLatLong(ifstream &in){
     string aux;
     double lat, longi;
 
@@ -197,11 +197,11 @@ void Main::getMaxMinLatLong(ifstream &in){
 
     //initialization of the initial values
     getline(in, aux, ';');
-    smallestLat = atof(aux.c_str());
-    largestLat =atof(aux.c_str());
+    smallestLong = atof(aux.c_str());
+    largestLong =atof(aux.c_str());
     getline(in, aux, '\n');
-    smallestLong =atof(aux.c_str());
-    largestLong = atof(aux.c_str());
+    smallestLat =atof(aux.c_str());
+    largestLat = atof(aux.c_str());
 
     while(!in.eof()){
         //ignoring  id and values in degrees
@@ -210,9 +210,9 @@ void Main::getMaxMinLatLong(ifstream &in){
         getline(in, aux, ';');
         //--------------------------------
         getline(in, aux, ';');
-        lat = atof(aux.c_str());
+        longi = atof(aux.c_str());
         getline(in, aux, '\n');
-        longi =atof(aux.c_str());
+        lat =atof(aux.c_str());
 
         if(lat > largestLat) {
             largestLat = lat;
@@ -226,15 +226,6 @@ void Main::getMaxMinLatLong(ifstream &in){
         }
     }
 }
-
-int Main::convertLongitudeToX(double longitude) {
-	return floor((longitude - smallestLong) * MAX_X / (largestLong - smallestLong));
-}
-
-int Main::convertLatitudeToY(double latitude) {
-	return floor((latitude - smallestLat) * MAX_Y / (largestLat - smallestLat));
-}
-
 
 int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 {
@@ -407,10 +398,44 @@ int showPath2(Main &m, int distance, bool fuel, int origin, int dest)
 
 int complexo()
 {
-	Main m;
-	if (m.buildGraphs() != 0)
+	ifstream in1("A.txt");
+	if (!in1) {
+		cerr << "A.txt not loaded" << endl;
 		return 1;
-	int origin, dest;
+	}
+	getMaxMinLatLong(in1);
+	in1.clear();
+	in1.seekg(0, ios::beg);
+	convertFile(in1); //creates a file called converted.txt
+
+	in1.close();
+	ifstream in5("converted.txt");
+	if (!in5) {
+		cerr << "converted.txt not loaded" << endl;
+		return 1;
+	}
+
+	ifstream in2("BeC.txt");
+	if (!in2) {
+		cerr << "BeC.txt not loaded" << endl;
+		return 1;
+	}
+	ifstream in3("D.txt");
+	if (!in3) {
+		cerr << "D.txt not loaded" << endl;
+		return 1;
+	}
+	ifstream in4("E.txt");
+	if (!in4) {
+		cerr << "E.txt not loaded" << endl;
+		return 1;
+	}
+	Main m(in5, in2, in3, in4);
+	in2.close();
+	in3.close();
+	in4.close();
+	in5.close();
+	long int origin, dest;
 	char petrolStation;
 	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
 	while (1) {
@@ -435,21 +460,18 @@ int complexo()
 		if (cin.fail()) {
 			cin.clear();
 			cin.ignore(100, '\n');
-			cout << "Origem invalida. Tente novamente." << endl;
+			cout << "Destino invalido. Tente novamente." << endl;
 		} else {
 			Vertex<int> *v = m.graph.findVertex(dest);
 			if (v == NULL || v->getType() == r || v->getType() == b || v->getType() == p)
-				break;
+				cout << "Destino invalido. Tente novamente." << endl;
+			else break;
 		}
 	}
 
 	int distance = -1; //-1 -> by distance; else -> by price
-	bool fuel = true; //the car needs fuel
+	bool fuel = false; //the car needs fuel
 
-	m.graph.findVertex(11)->setPrice(13);
-	m.graph.findVertex(13)->setPrice(9);
-	m.graph.findVertex(12)->setPrice(5);
-	m.graph.findVertex(10)->setPrice(12);
 	showPath(m, distance, fuel, origin, dest);
 	getchar();
 	return 0;
@@ -469,7 +491,7 @@ int simples()
 		{
 			cin.clear();
 			cin.ignore(100, '\n');
-			cout << "Origem invalida. Tente novamente." << endl;
+			cout << "Destino invalido. Tente novamente." << endl;
 		} else {
 			Vertex<int> *v = m.graph.findVertex(origin);
 			if (v == NULL || v->getType() != r)
@@ -502,6 +524,7 @@ int simples()
 	m.graph.findVertex(10)->setPrice(12);
 	showPath2(m, distance, fuel, origin, dest);
 	getchar();
+	Sleep(10000);
 	return 0;
 }
 
@@ -517,42 +540,16 @@ int main(){
 			return 0;
 		}
 		if(exemplo == c){
-			//complexo();
+			complexo();
 			return 0;
 		}
-			break;
+		cout << "Exemplo invalido. Tente novamente." << endl;
 	}
 
-	ifstream in1("A.txt");
-	if (!in1){
-		cerr << "A.txt not loaded" << endl;
-		return 1;
-	}
-	getMaxMinLatLong(in1);
-    in1.clear();
-    in1.seekg(0, ios::beg);
-    convertFile(in1);//creates a file called converted.txt
-	ifstream in2("BeC.txt");
-	if (!in1) {
-		cerr << "BeC.txt not loaded" << endl;
-		return 1;
-	}
-	ifstream in3("D.txt");
-	if (!in1) {
-		cerr << "D.txt not loaded" << endl;
-		return 1;
-	}
-	ifstream in4("E.txt");
-	if (!in1) {
-		cerr << "E.txt not loaded" << endl;
-		return 1;
-	}
-
-	Main m(in1,in2,in3,in4);
 	//m.getMaxMinLatLong(in1);
 	/*TESTES*/
-	Vertex<int> *dest = m.graph.findVertex("Lidl");
-	Vertex<int> *ori = m.graph.findVertex("Avenida Doutor Moreira de Sousa");
+	//Vertex<int> *dest = m.graph.findVertex("Lidl");
+	//Vertex<int> *ori = m.graph.findVertex("Avenida Doutor Moreira de Sousa");
 	/*//int p = m.graph.dijkstraClosestPark(dest->getInfo());
 	//int p = m.graph.dijkstraCheapestPark(dest->getInfo(), 100);
 	int p = m.graph.dijkstraCheapestPark(dest->getInfo(), 7);
@@ -563,6 +560,6 @@ int main(){
 		cout << parque->getType() << endl;
 		cout << parque->getDist() << endl;
 	}*/
-	showPath(m,-1,true,ori->getInfo(), dest->getInfo());
+	//showPath(m,-1,true,ori->getInfo(), dest->getInfo());
 	return 0;
 }

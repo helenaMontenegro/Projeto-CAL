@@ -15,12 +15,9 @@ Vertex<T>::Vertex(ifstream &in){
 		this->info = atoi(aux.c_str());
 
 		getline(in, aux, ';');
-		getline(in, aux, ';');
-
-		getline(in, aux, ';');
-		setLat(atof(aux.c_str()));
+		setX(atoi(aux.c_str()));
 		getline(in, aux, '\n');
-		setLon(atof(aux.c_str()));
+		setY(atoi(aux.c_str()));
 }
 
 template <class T>
@@ -81,23 +78,23 @@ string Vertex<T>::getType() const {
 }
 
 template <class T>
-float Vertex<T>::getLat() const {
-		return lat;
+int Vertex<T>::getX() const {
+		return x;
 }
 
 template <class T>
-void Vertex<T>::setLat(float lat){
-		this->lat = lat;
+void Vertex<T>::setX(int x){
+		this->x = x;
 }
 
 template <class T>
-float Vertex<T>::getLon() const {
-		return lon;
+int Vertex<T>::getY() const {
+		return y;
 }
 
 template <class T>
-void Vertex<T>::setLon(float lon){
-		this->lon = lon;
+void Vertex<T>::setY(int y){
+		this->y = y;
 }
 
 /*
@@ -217,9 +214,9 @@ Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream
 		getline(poi_in, aux, ';');
 		int id = atoi(aux.c_str());
 		getline(poi_in, aux, ';');
-		float lat = atof(aux.c_str());
+		int x = atoi(aux.c_str());
 		getline(poi_in, aux, ';');
-		float lon = atof(aux.c_str());
+		int y = atoi(aux.c_str());
 		getline(poi_in, aux, ';');
 		string type = aux;
 		getline(poi_in, aux, ';');
@@ -227,14 +224,11 @@ Graph<T>::Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream
 		getline(poi_in, aux, '\n');
 		double price = atof(aux.c_str());
 
-		lat = lat * M_PI / 180.0;
-		lon = lon * M_PI / 180.0;
-
 		Vertex<T> *v = findVertex(id);
 		if (v == NULL) {
 			v = new Vertex<T>(id);
-			v->setLat(lat);
-			v->setLon(lon);
+			v->setX(x);
+			v->setY(y);
 			vertexSet.push_back(v);
 		}
 		v->setName(name);
