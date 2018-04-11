@@ -418,9 +418,12 @@ int complexo()
 			<< endl << "Minipreco" << endl << "Locanda Real"  << endl
 			<< "Restaurante 5 Amigos" << endl << endl;
 
-	string ori, desti;
-	int origin, dest;
-	char petrolStation;
+	slong int origin, dest;
+   	char wantFuel;
+   	int park;
+   	double maxDistance;
+    	double distance = -1; //-1 -> by distance; else -> by price
+    	bool fuel = false; //the car needs fuel
 	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
 	while (1) {
 		cout << "Qual a origem? ";
@@ -446,9 +449,21 @@ int complexo()
 			break;
 		}
 	}
+	
+	  
+    cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
+    cin >> wantFuel;
+    if (wantFuel == 'S' || wantFuel == 's') fuel = true;
+    else
+        fuel = false;
 
-	int distance = -1; //-1 -> by distance; else -> by price
-	bool fuel = true; //the car needs fuel
+    cout << "Quer o parque de estacionamento mais barato(1) ou mais próximo(2)?" << end;
+    cin >> park;
+    if (wantFuel == 1) {
+        cout << "Qual a distância máxima que está disposto a andar? << endl;
+        cin >> maxDistance;
+        distance = maxDistance;
+    if (wantFuel == 2) distance = -1;
 
 	showPath(m, distance, fuel, origin, dest);
 	cout << "";
