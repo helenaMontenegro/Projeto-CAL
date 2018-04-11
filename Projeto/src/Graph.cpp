@@ -585,7 +585,7 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 	}
 	v1->visited = true;
 	v2->visited2 = true;
-	while (!q.empty()) {
+	while (!q.empty() || !q1.empty()) {
 		v1 = q.extractMin();
 		v2 = q1.extractMin();
 		for (size_t i = 0; i < v1->adj.size() || i < v2->adj.size(); i++) {

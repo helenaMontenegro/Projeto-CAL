@@ -346,6 +346,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 		if (i != 0)
 		{
 			m.gv->addEdge(n, x,v1.at(i), EdgeType::DIRECTED);
+			m.gv->setEdgeDashed(n, false);
 			nEdges++;
 			n++;
 		}
@@ -360,6 +361,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 			if (i != 0)
 			{
 				m.gv->addEdge(n, x, v2.at(i), EdgeType::DIRECTED);
+				m.gv->setEdgeDashed(n, false);
 				nEdges++;
 				n++;
 			}
