@@ -290,6 +290,17 @@ void getMaxMinLatLong(ifstream &in){
     }
 }
 
+void turnRoadsToGraySimples(Main &m)
+{
+	string r = "Rua";
+	for(int i = 0; i < 19; i++)
+	{
+		Vertex<int> *v = m.graph.findVertex(i);
+		if(v->getType() == r)
+			m.gv->setVertexColor(i, "gray");
+	}
+}
+
 int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 {
 	vector<int> v, v1, v2;
@@ -327,6 +338,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 		v1 = m.graph.getPath(origin,p);
 	}
 	int x, n = 0;
+	int nEdges = 0;
 	for(size_t i = 0; i < v1.size(); i++)
 	{
 		if(m.graph.findVertex(v1.at(i))->getType() == r)
@@ -334,6 +346,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 		if (i != 0)
 		{
 			m.gv->addEdge(n, x,v1.at(i), EdgeType::DIRECTED);
+			nEdges++;
 			n++;
 		}
 		Sleep(600);
@@ -347,6 +360,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 			if (i != 0)
 			{
 				m.gv->addEdge(n, x, v2.at(i), EdgeType::DIRECTED);
+				nEdges++;
 				n++;
 			}
 			Sleep(600);
@@ -362,6 +376,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 		{
 			m.gv->addEdge(n, x, v.at(i), EdgeType::DIRECTED);
 			m.gv->setEdgeDashed(n, true);
+			nEdges++;
 			n++;
 		}
 		Sleep(600);
@@ -369,8 +384,8 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 		m.gv->rearrange();
 	}
 	getchar();
-	Sleep(20000);
-	return 0;
+	Sleep(2000);
+	return nEdges;
 }
 
 int complexo()
@@ -421,11 +436,12 @@ int complexo()
 	long origin, dest;
 	string ori, desti;
    	char wantFuel;
-   	int park;
+   	int park, nEdges;
    	double maxDistance;
     	double distance = -1; //-1 -> by distance; else -> by price
     	bool fuel = false; //the car needs fuel
 	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
+	while(1){
 	while (1) {
 		cout << "Qual a origem? ";
 		getline(cin,ori);
@@ -473,28 +489,47 @@ int complexo()
     	cin.ignore(100, '\n');
     }
     else if (park == 1) {
-    	while(1)
-    	{
-        cout << "Qual a distancia maxima que esta disposto a andar?" << endl;
-        cin >> maxDistance;
-        if(cin.fail() || maxDistance <= 0)
-        	cout << "Resposta invalida. Tente novamente." << endl;
-        else break;
+    	    	while(1)
+    	    	{
+    	        cout << "Qual a distancia maxima que esta disposto a andar?" << endl;
+    	        cin >> maxDistance;
+    	        if(cin.fail() || maxDistance <= 0)
+    	        	cout << "Resposta invalida. Tente novamente." << endl;
+    	        else break;
+
+    	    	}
+    	        distance = maxDistance;
+    	        break;
+    	    }
+    	    else if (park == 2)
+    	    {
+    	    	distance = -1;
+    	    	break;
+    	    }
+    	    cout << "Resposta invalida. Tente novamente." << endl;
+    	    }
+    	 	nEdges = showPath(m, distance, fuel, origin, dest);
+    		while (1) {
+    			int answer;
+    			cout
+    					<< "Quer sair do programa(1) ou encontrar um novo trajeto(2)? ";
+    			cin >> answer;
+    			if (cin.fail()) {
+    				cin.clear();
+    				cin.ignore(100, '\n');
+    				cout << "Resposta invalida. Tente novamente." << endl;
+    			} else if (answer == 1)
+    				return 0;
+    			else if (answer == 2)
+    			{
+    				m.removeEdges(nEdges - 1);
+    				cin.ignore(100,'\n');
+    				break;
+    			}
+    			cout << "Resposta invalida. Tente novamente." << endl;
+    		}
 
     	}
-        distance = maxDistance;
-        break;
-    }
-    else if (park == 2)
-    {
-    	distance = -1;
-    	break;
-    }
-    cout << "Resposta invalida. Tente novamente." << endl;
-    }
-
-	showPath(m, distance, fuel, origin, dest);
-	cout << "";
 	return 0;
 }
 
@@ -505,6 +540,13 @@ int simples()
 		return 1;
 	int origin, dest;
 	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
+	m.graph.findVertex(11)->setPrice(13);
+	m.graph.findVertex(13)->setPrice(9);
+	m.graph.findVertex(12)->setPrice(5);
+	m.graph.findVertex(10)->setPrice(12);
+	int nEdges;
+	while(1)
+	{
 	while (1) {
 		cout << "Qual a origem? ";
 		cin >> origin;
@@ -581,13 +623,28 @@ int simples()
 	    }
 	    cout << "Resposta invalida. Tente novamente." << endl;
 	    }
+	 	nEdges = showPath(m, distance, fuel, origin, dest);
+		while (1) {
+			int answer;
+			cout
+					<< "Quer sair do programa(1) ou encontrar um novo trajeto(2)? ";
+			cin >> answer;
+			if (cin.fail()) {
+				cin.clear();
+				cin.ignore(100, '\n');
+				cout << "Resposta invalida. Tente novamente." << endl;
+			} else if (answer == 1)
+				return 0;
+			else if (answer == 2)
+			{
+				turnRoadsToGraySimples(m);
+				m.removeEdges(nEdges - 1);
+				break;
+			}
+			cout << "Resposta invalida. Tente novamente." << endl;
+		}
 
-	m.graph.findVertex(11)->setPrice(13);
-	m.graph.findVertex(13)->setPrice(9);
-	m.graph.findVertex(12)->setPrice(5);
-	m.graph.findVertex(10)->setPrice(12);
-	showPath(m, distance, fuel, origin, dest);
-	cout << "";
+	}
 	return 0;
 }
 

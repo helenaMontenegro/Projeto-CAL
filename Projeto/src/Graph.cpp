@@ -345,7 +345,7 @@ void Graph<T>::dijkstraShortestPath(const T &origin) {
 template<class T>
 T Graph<T>::dijkstraClosestPark(const T &origin) {
 	double minDist = INF;
-	T park;
+	T park = -1;
 	string parque = "Parque";
 	MutablePriorityQueue<Vertex<T> > q;
 	Vertex<T> *v1 = findVertex(origin);
@@ -406,7 +406,7 @@ T Graph<T>::dijkstraClosestPark(const T &origin) {
 template<class T>
 T Graph<T>::dijkstraCheapestPark(const T &origin, double maxDist) {
 	double minPrice = -1;
-	T park;
+	T park = -1;
 	string parque = "Parque";
 	MutablePriorityQueue<Vertex<T> > q;
 	Vertex<T> *v1 = findVertex(origin);
