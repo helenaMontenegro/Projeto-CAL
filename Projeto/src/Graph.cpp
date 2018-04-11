@@ -608,7 +608,7 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 						return v->info;
 				}
 			}
-			if (i < v2->adj.size() && (v2->adj.at(i).getTwoWay() || (!(v2->adj.at(i).getTwoWay()) && !(v2->adj.at(i).getByCar())))) {
+			if (i < v2->adj.size() && (v2->adj.at(i).getTwoWay() || (!v2->adj.at(i).getTwoWay() && !v2->adj.at(i).getByCar()))) {
 				Vertex<T> *v3 = v2->adj.at(i).dest;
 				if (v3->info != dest) {
 					if (!v3->visited2) {

@@ -1,14 +1,14 @@
-1155452262;1063;581;Ponto de Interesse;Restaurante Tainha;0
-1155453012;1110;550;Parque;Parque Restaurante Tainha;2.5
-2107300160;1112;629;Parque;Parque Restaurante Tainha;2.5
-2107300165;1142;604;Parque;Parque Restaurante Tainha;2.5
-2107300174;1345;500;Parque;Parque Lidl;1.5
-2107300186;1346;533;Parque;Parque Lidl;1.5
-1725795360;1469;551;Ponto de Interesse;Lidl;0
-1324741515;393;444;Bomba de Gasolina;Gasolina Pingo Doce;0
-1324746279;390;496;Ponto de Interesse;Pingo Doce;0
-2106435865;1364;341;Ponto de Interesse;Minipreco;0
-2106435857;1633;272;Ponto de Interesse;Locanda Real;0
-1155452276;1537;189;Ponto de Interesse;Restaurante 5 Amigos;0
-2106435868;1525;246;Bomba de Gasolina;Galp;0
-2106445094;879;428;Bomba de Gasolina;Gasolina;0
+1155452262;1063;499;Ponto de Interesse;Restaurante Tainha;0
+1155453012;1110;530;Parque;Parque Restaurante Tainha;2.5
+2107300160;1112;451;Parque;Parque Restaurante Tainha;2.5
+2107300165;1142;476;Parque;Parque Restaurante Tainha;2.5
+2107300174;1345;580;Parque;Parque Lidl;1.5
+2107300186;1346;547;Parque;Parque Lidl;1.5
+1725795360;1469;529;Ponto de Interesse;Lidl;0
+1324741515;393;636;Bomba de Gasolina;Gasolina Pingo Doce;0
+1324746279;390;584;Ponto de Interesse;Pingo Doce;0
+2106435865;1364;739;Ponto de Interesse;Minipreco;0
+2106435857;1633;808;Ponto de Interesse;Locanda Real;0
+1155452276;1537;891;Ponto de Interesse;Restaurante 5 Amigos;0
+2106435868;1525;834;Bomba de Gasolina;Galp;0
+2106445094;879;652;Bomba de Gasolina;Gasolina;0

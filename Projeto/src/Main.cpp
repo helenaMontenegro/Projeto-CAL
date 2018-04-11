@@ -369,7 +369,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 		m.gv->rearrange();
 	}
 	getchar();
-	Sleep(10000);
+	Sleep(20000);
 	return 0;
 }
 
@@ -418,7 +418,8 @@ int complexo()
 			<< endl << "Minipreco" << endl << "Locanda Real"  << endl
 			<< "Restaurante 5 Amigos" << endl << endl;
 
-	slong int origin, dest;
+	long origin, dest;
+	string ori, desti;
    	char wantFuel;
    	int park;
    	double maxDistance;
@@ -450,20 +451,47 @@ int complexo()
 		}
 	}
 	
-	  
-    cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
-    cin >> wantFuel;
-    if (wantFuel == 'S' || wantFuel == 's') fuel = true;
-    else
-        fuel = false;
-
-    cout << "Quer o parque de estacionamento mais barato(1) ou mais próximo(2)?" << end;
+	  while (1) {
+		cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
+		cin >> wantFuel;
+		if (wantFuel == 'S' || wantFuel == 's') {
+			fuel = true;
+			break;
+		} else if (wantFuel == 'N' || wantFuel == 'n') {
+			fuel = false;
+			break;
+		}
+		 cout << "Resposta invalida. Tente novamente." << endl;
+	}
+	while(1)
+	{
+    cout << "Quer o parque de estacionamento mais barato(1) ou mais proximo(2)?" << endl;
     cin >> park;
-    if (wantFuel == 1) {
-        cout << "Qual a distância máxima que está disposto a andar? << endl;
+    if(cin.fail())
+    {
+    	cin.clear();
+    	cin.ignore(100, '\n');
+    }
+    else if (park == 1) {
+    	while(1)
+    	{
+        cout << "Qual a distancia maxima que esta disposto a andar?" << endl;
         cin >> maxDistance;
+        if(cin.fail() || maxDistance <= 0)
+        	cout << "Resposta invalida. Tente novamente." << endl;
+        else break;
+
+    	}
         distance = maxDistance;
-    if (wantFuel == 2) distance = -1;
+        break;
+    }
+    else if (park == 2)
+    {
+    	distance = -1;
+    	break;
+    }
+    cout << "Resposta invalida. Tente novamente." << endl;
+    }
 
 	showPath(m, distance, fuel, origin, dest);
 	cout << "";
@@ -508,8 +536,51 @@ int simples()
 				break;
 		}
 	}
+	int park, maxDistance;
+	char wantFuel;
 	int distance = -1; //-1 -> by distance; else -> by price
 	bool fuel = true; //the car needs fuel
+	 while (1) {
+			cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
+			cin >> wantFuel;
+			if (wantFuel == 'S' || wantFuel == 's') {
+				fuel = true;
+				break;
+			} else if (wantFuel == 'N' || wantFuel == 'n') {
+				fuel = false;
+				break;
+			}
+			 cout << "Resposta invalida. Tente novamente." << endl;
+		}
+		while(1)
+		{
+	    cout << "Quer o parque de estacionamento mais barato(1) ou mais proximo(2)?" << endl;
+	    cin >> park;
+	    if(cin.fail())
+	    {
+	    	cin.clear();
+	    	cin.ignore(100, '\n');
+	    }
+	    else if (park == 1) {
+	    	while(1)
+	    	{
+	        cout << "Qual a distancia maxima que esta disposto a andar?" << endl;
+	        cin >> maxDistance;
+	        if(cin.fail() || maxDistance <= 0)
+	        	cout << "Resposta invalida. Tente novamente." << endl;
+	        else break;
+
+	    	}
+	        distance = maxDistance;
+	        break;
+	    }
+	    else if (park == 2)
+	    {
+	    	distance = -1;
+	    	break;
+	    }
+	    cout << "Resposta invalida. Tente novamente." << endl;
+	    }
 
 	m.graph.findVertex(11)->setPrice(13);
 	m.graph.findVertex(13)->setPrice(9);
