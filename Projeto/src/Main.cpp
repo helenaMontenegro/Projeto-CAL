@@ -650,6 +650,34 @@ int simples()
 	return 0;
 }
 
+int editDistance(string pattern, string text) {
+
+	int m = pattern.length();
+	int n = text.length();
+	int old, neW;
+	vector<int> d(n + 1);
+
+	for (int j = 0; j <= n; j++)
+		d[j] = j;
+
+	for (int i = 1; i <= m; i++) {
+		old = d[0];
+		d[0] = i;
+		for (int j = 1; j <= n; j++) {
+			if (pattern[i - 1] == text[j - 1])
+				neW = old;
+			else {
+				neW = min(old, d[j]);
+				neW = min(neW, d[j - 1]);
+				neW = neW + 1;
+			}
+			old = d[j];
+			d[j] = neW;
+		}
+	}
+	return d[n];
+}
+
 int main(){
 	string exemplo, s = "simples", c = "complexo";
 	while (1) {
