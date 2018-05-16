@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Graph.h"
 #include "Graph.cpp"
+#include "matcher.h"
 #include <cstdio>
 #include "graphviewer.h"
 #include <fstream>
@@ -12,7 +13,7 @@
 #include <map>
 
 #define MAX_X 1920
-#define MAX_Y 1080
+#define MAX_Y 1028
 
 double largestLat, largestLong, smallestLat, smallestLong;
 string convertedFilepath;
@@ -32,8 +33,8 @@ public:
 
 Main::Main()
 {
-	gv = new GraphViewer(600, 600, false);
-	gv->createWindow(600, 600);
+	gv = new GraphViewer(800, 800, false);
+	gv->createWindow(800, 800);
 	gv->defineVertexColor("red");
 	gv->defineEdgeColor("black");
 	gv->defineEdgeCurved(false);
@@ -47,6 +48,7 @@ Main::Main(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edg
 	gv->defineEdgeColor("black");
 	gv->defineEdgeCurved(false);
 	Graph<int> g(node_in, edge_in, poi_in, edge_poi_in);
+	g.generateParks(10);
 	graph = g;
 	int numEdges = addVertexes();
 	getchar();
@@ -205,6 +207,7 @@ int Main::buildGraphs()
 			v->setType("Ponto de Interesse");
 			v->setName(c);
 		}
+		gv->setVertexSize(idNode, 0.1);
 	}
 	in.close();
 	getchar();
@@ -304,15 +307,18 @@ void turnRoadsToGraySimples(Main &m)
 	}
 }
 
-int showPath(Main &m, int distance, bool fuel, int origin, int dest)
+int showPath(Main &m, int distance, bool fuel, int origin, int dest, int park, bool wantPark)
 {
+	cout << "wantPark = " << wantPark << endl;
 	vector<int> v, v1, v2;
 	string r = "Rua";
 	int p;
-	if (distance == -1)
+	if (distance == -1 && !wantPark)
 		p = m.graph.dijkstraClosestPark(dest);
-	else
+	else if(!wantPark)
 		p = m.graph.dijkstraCheapestPark(dest, distance);
+	else
+		p = park;
 	if(p == -1)
 	{
 		cout << "Nao ha nenhum parque disponivel." << endl;
@@ -322,6 +328,8 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 	cout << "O parque mais indicado e o " << parque->getName()
 			<< " cuja distancia ao seu destino e " << parque->getDist()
 			<< " e cujo preco e " << parque->getPrice() << " euros." << endl << endl;
+	if(wantPark)
+		m.graph.dijkstraShortestPath(dest, p);
 	v = m.graph.getPath(dest,p);
 
 	if(fuel)
@@ -393,8 +401,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest)
 	return nEdges;
 }
 
-int complexo()
-{
+int complexo() {
 	ifstream in1("A.txt");
 	if (!in1) {
 		cerr << "A.txt not loaded" << endl;
@@ -435,106 +442,133 @@ int complexo()
 
 	cout << "Destinos disponiveis:" << endl;
 	cout << "Restaurante Tainha" << endl << "Lidl" << endl << "Pingo Doce"
-			<< endl << "Minipreco" << endl << "Locanda Real"  << endl
+			<< endl << "Minipreco" << endl << "Locanda Real" << endl
 			<< "Restaurante 5 Amigos" << endl << endl;
 
-	long origin, dest;
-	string ori, desti;
-   	char wantFuel;
-   	int park, nEdges;
-   	double maxDistance;
-    	double distance = -1; //-1 -> by distance; else -> by price
-    	bool fuel = false; //the car needs fuel
+	long origin, dest, park3;
+	string ori, desti, park1;
+	char wantFuel, wantPark;
+	int park, nEdges;
+	double maxDistance;
+	double distance = -1; //-1 -> by distance; else -> by price
+	bool fuel = false, park2 = false;
 	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
-	while(1){
 	while (1) {
-		cout << "Qual a origem? ";
-		getline(cin,ori);
-		Vertex<int> *v = m.graph.findVertex(ori);
-		if (v == NULL || v->getType() != r)
-			cout << "Origem invalida. Tente novamente." << endl;
-		else
+		while (1) {
+			cout << "Qual a origem? ";
+			getline(cin, ori);
+			Vertex<int> *v = m.graph.findVertex(ori);
+			if (v == NULL || v->getType() != r)
+				cout << "Origem invalida. Tente novamente." << endl;
+			else {
+				origin = v->getInfo();
+				break;
+			}
+		}
+		while (1) {
+			cout << "Quer escolher a rua do parque onde quer estacionar? (S/N) "
+					<< endl;
+			cin >> wantPark;
+			cin.ignore(100, '\n');
+			if (wantPark == 'S' || wantPark == 's') {
+				park2 = true;
+				break;
+			} else if (wantPark == 'N' || wantPark == 'n') {
+				park2 = false;
+				break;
+			}
+			cout << "Resposta invalida. Tente novamente." << endl;
+		}
+		if(park2)
 		{
-			origin = v->getInfo();
-			break;
+			cout << "Qual a rua do parque? ";
+			getline(cin, park1);
+			Vertex<int> *v = m.graph.findPark(park1);
+			if (v == NULL)
+			{
+				cout << "Rua ou parque nao existente." << endl;
+				wantPark = false;
+			}
+			else
+				park3 = v->getInfo();
 		}
-	}
-	while (1) {
-		cout << "Qual o destino? ";
-		getline(cin,desti);
-		Vertex<int> *v = m.graph.findVertex(desti);
-		if (v == NULL || v->getType() == r || v->getType() == b || v->getType() == p)
-			cout << "Destino invalido. Tente novamente." << endl;
-		else
+
+		while (1) {
+			cout << "Qual o destino? ";
+			getline(cin, desti);
+			Vertex<int> *v = m.graph.findVertex(desti);
+			if (v == NULL || v->getType() == r || v->getType() == b
+					|| v->getType() == p)
+				cout << "Destino invalido. Tente novamente." << endl;
+			else {
+				dest = v->getInfo();
+				break;
+			}
+		}
+
+		while (1) {
+			cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
+			cin >> wantFuel;
+			if (wantFuel == 'S' || wantFuel == 's') {
+				fuel = true;
+				break;
+			} else if (wantFuel == 'N' || wantFuel == 'n') {
+				fuel = false;
+				break;
+			}
+			cout << "Resposta invalida. Tente novamente." << endl;
+		}
+		if(!wantPark)
 		{
-			dest = v->getInfo();
-			break;
-		}
-	}
-	
-	  while (1) {
-		cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
-		cin >> wantFuel;
-		if (wantFuel == 'S' || wantFuel == 's') {
-			fuel = true;
-			break;
-		} else if (wantFuel == 'N' || wantFuel == 'n') {
-			fuel = false;
-			break;
-		}
-		 cout << "Resposta invalida. Tente novamente." << endl;
-	}
-	while(1)
-	{
-    cout << "Quer o parque de estacionamento mais barato(1) ou mais proximo(2)?" << endl;
-    cin >> park;
-    if(cin.fail())
-    {
-    	cin.clear();
-    	cin.ignore(100, '\n');
-    }
-    else if (park == 1) {
-    	    	while(1)
-    	    	{
-    	        cout << "Qual a distancia maxima que esta disposto a andar?" << endl;
-    	        cin >> maxDistance;
-    	        if(cin.fail() || maxDistance <= 0)
-    	        	cout << "Resposta invalida. Tente novamente." << endl;
-    	        else break;
+		while (1) {
+			cout
+					<< "Quer o parque de estacionamento mais barato(1) ou mais proximo(2)?"
+					<< endl;
+			cin >> park;
+			if (cin.fail()) {
+				cin.clear();
+				cin.ignore(100, '\n');
+			} else if (park == 1) {
+				while (1) {
+					cout << "Qual a distancia maxima que esta disposto a andar?"
+							<< endl;
+					cin >> maxDistance;
+					if (cin.fail() || maxDistance <= 0)
+						cout << "Resposta invalida. Tente novamente." << endl;
+					else
+						break;
 
-    	    	}
-    	        distance = maxDistance;
-    	        break;
-    	    }
-    	    else if (park == 2)
-    	    {
-    	    	distance = -1;
-    	    	break;
-    	    }
-    	    cout << "Resposta invalida. Tente novamente." << endl;
-    	    }
-    	 	nEdges = showPath(m, distance, fuel, origin, dest);
-    		while (1) {
-    			int answer;
-    			cout
-    					<< "Quer sair do programa(1) ou encontrar um novo trajeto(2)? ";
-    			cin >> answer;
-    			if (cin.fail()) {
-    				cin.clear();
-    				cin.ignore(100, '\n');
-    				cout << "Resposta invalida. Tente novamente." << endl;
-    			} else if (answer == 1)
-    				return 0;
-    			else if (answer == 2)
-    			{
-    				m.removeEdges(nEdges - 1);
-    				cin.ignore(100,'\n');
-    				break;
-    			}
-    			cout << "Resposta invalida. Tente novamente." << endl;
-    		}
+				}
+				distance = maxDistance;
+				break;
+			} else if (park == 2) {
+				distance = -1;
+				break;
+			}
+			cout << "Resposta invalida. Tente novamente." << endl;
+		}
+		}
+		nEdges = showPath(m, distance, fuel, origin, dest, park3, wantPark);
+		while (1) {
+			int answer;
+			cout
+					<< "Quer sair do programa(1) ou encontrar um novo trajeto(2)? ";
+			cin >> answer;
+			if (cin.fail()) {
+				cin.clear();
+				cin.ignore(100, '\n');
+				cout << "Resposta invalida. Tente novamente." << endl;
+			} else if (answer == 1)
+				return 0;
+			else if (answer == 2) {
+				m.removeEdges(nEdges - 1);
+				cin.ignore(100, '\n');
+				break;
+			}
+			cout << "Resposta invalida. Tente novamente." << endl;
+		}
 
-    	}
+	}
 	return 0;
 }
 
@@ -628,7 +662,7 @@ int simples()
 	    }
 	    cout << "Resposta invalida. Tente novamente." << endl;
 	    }
-	 	nEdges = showPath(m, distance, fuel, origin, dest);
+	 	nEdges = showPath(m, distance, fuel, origin, dest, -1, false);
 		while (1) {
 			int answer;
 			cout
@@ -651,93 +685,6 @@ int simples()
 
 	}
 	return 0;
-}
-
-int editDistance(string pattern, string text) {
-
-	int m = pattern.length();
-	int n = text.length();
-	int old, neW;
-	vector<int> d(n + 1);
-
-	for (int j = 0; j <= n; j++)
-		d[j] = j;
-
-	for (int i = 1; i <= m; i++) {
-		old = d[0];
-		d[0] = i;
-		for (int j = 1; j <= n; j++) {
-			if (pattern[i - 1] == text[j - 1])
-				neW = old;
-			else {
-				neW = min(old, d[j]);
-				neW = min(neW, d[j - 1]);
-				neW = neW + 1;
-			}
-			old = d[j];
-			d[j] = neW;
-		}
-	}
-	return d[n];
-}
-
-vector<string> approxStringMatching(string input, vector<string> streettown){
-	
-	vector<string> inputs = names(input);
-	vector<map<string, int>> mapVecs;
-	
-	for (int i = 0; i < inputs.size(); i++){
-		
-		map<string, int> mapWord;
-		
-		for (int j = 0; j < streettown.size(); i++){
-			int diff = 0;
-			vector<string> words = names(streettown.at(j));
-			
-			for (int k = 0; k < words.size(); k++){
-				
-				if ((words.at(k).size() < inputs.at(i).size()) && (words.at(k).size() < 3)){
-					continue;
-				}
-				
-				int diffTemp = editDistance(inputs.at(i), words.at(k));
-				
-				if (diff == 0 || diffTemp < diff){
-					diff = diffTemp;
-				}	
-			}
-		
-			pair<string, int> diffInput = make_pair(streettown.at(j), diff);
-			mapWord.insert(diffInput);
-		}
-		
-		mapVecs.push_back(mapWord);
-	}
-	
-	multimap<int string> updatedMap;
-	
-	for (int i = 0; i < streettown.size(); i++){
-		int diff = 0;
-		
-		for (int j = 0; j < mapVecs.size(); j++){
-			diff += mapVecs[j][streettown.at(i)];
-		}
-		pair<int, string> p = make_pair(diff, streettown.at(i));
-		updatedMap.insert(p);
-	}
-	
-	vector<string> finalVec;
-	
-	for (multimap<int, string>::iterator it = updatedMap.begin();
-				it != updatedMap.end(); it++) {
-			
-
-			if (it->first <= (4 * inputs.size()))
-				finalVec.push_back(it->second);
-		}
-
-		return finalVec;
-	
 }
 
 int main(){

@@ -105,6 +105,7 @@ public:
 	Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in);
 	Vertex<T> *findVertex(const T &in) const;
 	Vertex<T> *findVertex(const string &local) const;
+	Vertex<T> *findPark(const string &local) const;
 	bool addVertex(const T &in);
 	bool addEdge(const int id, const T &sourc, const T &dest, double w);
 	int getNumVertex() const;
@@ -117,6 +118,7 @@ public:
 	vector<T> getPath2(const T &origin, const T &dest) const;
 	T getClosestPark() const;
 	T dijkstraBidirectionalPath(const T &origin, const T &dest);
+	void generateParks(int num);
 };
 
 #endif /* GRAPH_H_ */

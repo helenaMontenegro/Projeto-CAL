@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include "matcher.h"
 #include <iostream>
 using namespace std;
 
@@ -271,8 +272,20 @@ Vertex<T> * Graph<T>::findVertex(const T &in) const {
 template <class T>
 Vertex<T> * Graph<T>::findVertex(const string &local) const {
 	for (auto v : vertexSet)
-		if (v->name == local)
+	{
+		if(local.size() == v->name.size() && kmpMatcher(v->name, local) == 1)
 			return v;
+	}
+	return NULL;
+}
+
+template <class T>
+Vertex<T> * Graph<T>::findPark(const string &local) const {
+	for (auto v : vertexSet)
+	{
+		if(v->type == "Parque" && local.size() == v->name.size() && kmpMatcher(v->name, local) == 1)
+			return v;
+	}
 	return NULL;
 }
 
@@ -630,4 +643,20 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 		}
 	}
 	return -1;
+}
+
+template<class T>
+void Graph<T>::generateParks(int num)
+{
+	int n = 0;
+	for(size_t i = 0; i < vertexSet.size(); i++)
+	{
+		if(vertexSet.at(i)->getType() == "Rua" && vertexSet.at(i)->getName() != "")
+		{
+			if(rand()%10 == 1)
+				vertexSet.at(i)->setType("Parque");
+		}
+		if(n >= num)
+			return;
+	}
 }
