@@ -7,6 +7,9 @@
 #include <sstream>
 #include <vector>
 #include <cstddef>
+#include <utility>  
+#include <algorithm>
+#include <map>
 
 #define MAX_X 1920
 #define MAX_Y 1080
@@ -676,6 +679,65 @@ int editDistance(string pattern, string text) {
 		}
 	}
 	return d[n];
+}
+
+vector<string> approxStringMatching(string input, vector<string> streettown){
+	
+	vector<string> inputs = names(input);
+	vector<map<string, int>> mapVecs;
+	
+	for (int i = 0; i < inputs.size(); i++){
+		
+		map<string, int> mapWord;
+		
+		for (int j = 0; j < streettown.size(); i++){
+			int diff = 0;
+			vector<string> words = names(streettown.at(j));
+			
+			for (int k = 0; k < words.size(); k++){
+				
+				if ((words.at(k).size() < inputs.at(i).size()) && (words.at(k).size() < 3)){
+					continue;
+				}
+				
+				int diffTemp = editDistance(inputs.at(i), words.at(k));
+				
+				if (diff == 0 || diffTemp < diff){
+					diff = diffTemp;
+				}	
+			}
+		
+			pair<string, int> diffInput = make_pair(streettown.at(j), diff);
+			mapWord.insert(diffInput);
+		}
+		
+		mapVecs.push_back(mapWord);
+	}
+	
+	multimap<int string> updatedMap;
+	
+	for (int i = 0; i < streettown.size(); i++){
+		int diff = 0;
+		
+		for (int j = 0; j < mapVecs.size(); j++){
+			diff += mapVecs[j][streettown.at(i)];
+		}
+		pair<int, string> p = make_pair(diff, streettown.at(i));
+		updatedMap.insert(p);
+	}
+	
+	vector<string> finalVec;
+	
+	for (multimap<int, string>::iterator it = updatedMap.begin();
+				it != updatedMap.end(); it++) {
+			
+
+			if (it->first <= (4 * inputs.size()))
+				finalVec.push_back(it->second);
+		}
+
+		return finalVec;
+	
 }
 
 int main(){
