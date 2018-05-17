@@ -65,6 +65,7 @@ public:
 	void addEdge(Edge<T> *edg);
 	friend class Graph<T>;
 	friend class MutablePriorityQueue<Vertex<T>>;
+
 };
 
 /********************** Edge  ****************************/
@@ -119,6 +120,8 @@ public:
 	T getClosestPark() const;
 	T dijkstraBidirectionalPath(const T &origin, const T &dest);
 	void generateParks(int num);
+	vector<Vertex<T> *>findAproximatePark(const string &local) const;
+	vector<Vertex<T> *>findAproximateVertex(const string &local) const;
 };
 
 #endif /* GRAPH_H_ */

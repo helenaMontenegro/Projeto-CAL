@@ -2,6 +2,12 @@
 #include "matcher.h"
 #include <iostream>
 using namespace std;
+struct APR_Greater_Than {
+	bool operator()(APR a, APR b) const {
+		return a.first > b.first;
+	}
+};
+
 
 /*********** VERTEX ***********/
 template <class T>
@@ -287,6 +293,53 @@ Vertex<T> * Graph<T>::findPark(const string &local) const {
 			return v;
 	}
 	return NULL;
+}
+template <class T>
+vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local) const {
+	vector<Vertex<T> *> result;
+	APR current;
+	vector<APR> heap;
+	for (auto v : vertexSet)
+	{
+
+		if(v->type == "Parque" && local.size() == v->name.size()){
+			int actualValue = aproximate_matching(local, v->name);
+			current.first = actualValue;
+			current.second = (v);
+			heap.push_back(current);
+		}
+		make_heap(heap.begin(), heap.end(), APR_Greater_Than());
+		heap = vector<APR>(heap.begin(), heap.begin() + 5);
+		for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
+		{
+			result.push_back(it->second);
+		}
+	}
+	return result;
+}
+
+template <class T>
+vector<Vertex<T> *> Graph<T>::findAproximateVertex(const string &local) const {
+	vector<Vertex<T> *> result;
+	APR current;
+	vector<APR> heap;
+	for (auto v : vertexSet)
+	{
+
+		if(local.size() == v->name.size()){
+			int actualValue = aproximate_matching(local, v->name);
+			current.first = actualValue;
+			current.second = (v);
+			heap.push_back(current);
+		}
+		make_heap(heap.begin(), heap.end(), APR_Greater_Than());
+		heap = vector<APR>(heap.begin(), heap.begin() + 5);
+		for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
+		{
+			result.push_back(it->second);
+		}
+	}
+	return result;
 }
 
 template <class T>
