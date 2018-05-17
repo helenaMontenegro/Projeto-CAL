@@ -401,7 +401,7 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest, int park, b
 	return nEdges;
 }
 
-int complexo() {
+int complexo(bool aprox) {
 	ifstream in1("A.txt");
 	if (!in1) {
 		cerr << "A.txt not loaded" << endl;
@@ -479,7 +479,7 @@ int complexo() {
 			}
 			cout << "Resposta invalida. Tente novamente." << endl;
 		}
-		if(park2)
+		if(park2 && !aprox)
 		{
 			cout << "Qual a rua do parque? ";
 			getline(cin, park1);
@@ -491,6 +491,46 @@ int complexo() {
 			}
 			else
 				park3 = v->getInfo();
+		} else if(park2 && aprox)
+		{
+			int num_iter = 0;
+			while(num_iter < 3)
+			{
+			vector<string> names;
+			cout << "Qual a rua do parque? ";
+			getline(cin, park1);
+			vector<Vertex<int> *> vertexes = m.graph.findAproximatePark(park1);
+			if(park1 == vertexes.at(0)->getName())
+			{
+				park3 = vertexes.at(0)->getInfo();
+				break;
+			}
+			else{
+				if(num_iter == 2)
+				{
+					cout << "Numero de tentativas excedido. Prosseguindo." << endl;
+					wantPark = false;
+					break;
+				}
+				cout << "Rua nao encontrada. Opcoes alternativas:" << endl;
+			for(size_t i = 0; i < vertexes.size(); i++)
+			{
+				bool found = false;
+				Vertex<int> *a = vertexes.at(i);
+				for(size_t j = 0; j < names.size(); j++)
+				{
+					if(names.at(j) == a->getName())
+						found = true;
+				}
+				if(!found)
+				{
+					cout << a->getName() << endl;
+					names.push_back(a->getName());
+				}
+			}
+			cout << "Tente novamente." << endl;
+			}
+			}
 		}
 
 		while (1) {
@@ -698,7 +738,26 @@ int main(){
 			return 0;
 		}
 		if(exemplo == c){
-			complexo();
+			int answer;
+			bool aprox = false;
+			while (1) {
+				cout << "Quer pesquisa aproximada(1) ou exata(2) " << endl;
+				cin >> answer;
+				if (cin.fail() || answer < 1 || answer > 2) {
+					cin.clear();
+					cin.ignore(100,'\n');
+					cout << "Resposta invalida. Tente novamente." << endl;
+				} else if(answer == 2){
+					aprox = false;
+					break;
+				}
+				else if(answer == 1)
+					{
+					aprox = true;
+					break;
+					}
+			}
+			complexo(aprox);
 			return 0;
 		}
 		cout << "Exemplo invalido. Tente novamente." << endl;

@@ -22,3 +22,5 @@ int kmpMatcher(string text, string pattern);
 int numStringMatching(string filename,string toSearch);
 
 int editDistance(string pattern, string text);
+
+int aproximate_matching(string pattern,string text);

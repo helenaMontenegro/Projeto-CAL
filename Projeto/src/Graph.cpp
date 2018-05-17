@@ -301,19 +301,17 @@ vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local) const {
 	vector<APR> heap;
 	for (auto v : vertexSet)
 	{
-
-		if(v->type == "Parque" && local.size() == v->name.size()){
+		if(v->type == "Parque"){
 			int actualValue = aproximate_matching(local, v->name);
 			current.first = actualValue;
-			current.second = (v);
+			current.second = v;
 			heap.push_back(current);
+			make_heap(heap.begin(), heap.end(), APR_Greater_Than());
 		}
-		make_heap(heap.begin(), heap.end(), APR_Greater_Than());
-		heap = vector<APR>(heap.begin(), heap.begin() + 5);
-		for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
-		{
-			result.push_back(it->second);
-		}
+	}
+	heap = vector<APR>(heap.begin(), heap.begin()+5);
+	for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++) {
+		result.push_back(it->second);
 	}
 	return result;
 }
@@ -332,7 +330,7 @@ vector<Vertex<T> *> Graph<T>::findAproximateVertex(const string &local) const {
 			current.second = (v);
 			heap.push_back(current);
 		}
-		make_heap(heap.begin(), heap.end(), APR_Greater_Than());
+		make_heap(heap.begin(), heap.end()--, APR_Greater_Than());
 		heap = vector<APR>(heap.begin(), heap.begin() + 5);
 		for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
 		{
