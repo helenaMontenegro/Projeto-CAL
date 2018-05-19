@@ -62,6 +62,11 @@ string Vertex<T>::getName() const {
 }
 
 template <class T>
+string Vertex<T>::getFreguesia() const {
+	return freguesia;
+}
+
+template <class T>
 void Vertex<T>::setName(string name){
 	this->name = name;
 }
@@ -276,26 +281,28 @@ Vertex<T> * Graph<T>::findVertex(const T &in) const {
 }
 
 template <class T>
-Vertex<T> * Graph<T>::findVertex(const string &local) const {
+Vertex<T> * Graph<T>::findVertex(const string &local, const string &freguesia) const {
 	for (auto v : vertexSet)
 	{
-		if(local.size() == v->name.size() && kmpMatcher(v->name, local) == 1)
+		if(v->type != "Parque" && local.size() == v->name.size() && kmpMatcher(v->name, local) == 1
+				&& kmpMatcher(v->freguesia, freguesia) == 1)
 			return v;
 	}
 	return NULL;
 }
 
 template <class T>
-Vertex<T> * Graph<T>::findPark(const string &local) const {
+Vertex<T> * Graph<T>::findPark(const string &local, const string &freguesia) const {
 	for (auto v : vertexSet)
 	{
-		if(v->type == "Parque" && local.size() == v->name.size() && kmpMatcher(v->name, local) == 1)
+		if(v->type == "Parque" && local.size() == v->name.size() && kmpMatcher(v->name, local) == 1
+				&& kmpMatcher(v->freguesia, freguesia) == 1)
 			return v;
 	}
 	return NULL;
 }
 template <class T>
-vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local) const {
+vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local, const string &freguesia) const {
 	vector<Vertex<T> *> result;
 	APR current;
 	vector<APR> heap;
@@ -303,6 +310,7 @@ vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local) const {
 	{
 		if(v->type == "Parque"){
 			int actualValue = aproximate_matching(local, v->name);
+			actualValue += aproximate_matching(freguesia, v->freguesia);
 			current.first = actualValue;
 			current.second = v;
 			heap.push_back(current);
@@ -311,31 +319,33 @@ vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local) const {
 	}
 	heap = vector<APR>(heap.begin(), heap.begin()+5);
 	for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++) {
-		result.push_back(it->second);
+		if(it->first <= 15)
+			result.push_back(it->second);
 	}
 	return result;
 }
 
 template <class T>
-vector<Vertex<T> *> Graph<T>::findAproximateVertex(const string &local) const {
+vector<Vertex<T> *> Graph<T>::findAproximateVertex(const string &local, const string &freguesia) const {
 	vector<Vertex<T> *> result;
 	APR current;
 	vector<APR> heap;
 	for (auto v : vertexSet)
 	{
-
-		if(local.size() == v->name.size()){
+		if(v->getType() != "Parque"){
 			int actualValue = aproximate_matching(local, v->name);
+			actualValue += aproximate_matching(freguesia, v->freguesia);
 			current.first = actualValue;
-			current.second = (v);
+			current.second = v;
 			heap.push_back(current);
+			make_heap(heap.begin(), heap.end()--, APR_Greater_Than());
 		}
-		make_heap(heap.begin(), heap.end()--, APR_Greater_Than());
-		heap = vector<APR>(heap.begin(), heap.begin() + 5);
-		for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
-		{
+	}
+	heap = vector<APR>(heap.begin(), heap.begin() + 5);
+	for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
+	{
+		if(it->first <= 15)
 			result.push_back(it->second);
-		}
 	}
 	return result;
 }
@@ -697,6 +707,45 @@ T Graph<T>::dijkstraBidirectionalPath(const T &origin, const T &dest) {
 }
 
 template<class T>
+vector<string> Graph<T>::getPointsOfInterest()
+{
+	vector<string> poi;
+	for(size_t i = 0; i < vertexSet.size(); i++)
+	{
+		if(vertexSet.at(i)->getType() == "Ponto de Interesse")
+		{
+			poi.push_back(vertexSet.at(i)->getName());
+			poi.push_back(vertexSet.at(i)->freguesia);
+		}
+	}
+	return poi;
+}
+
+template<class T>
+vector<string> Graph<T>::getRoads()
+{
+	vector<string> poi;
+	for(size_t i = 0; i < vertexSet.size(); i++)
+	{
+		bool equals = false;
+		if(vertexSet.at(i)->getType() == "Rua" && vertexSet.at(i)->getName() != "")
+		{
+			for(size_t j = 0; j < poi.size(); j++)
+			{
+				if(vertexSet.at(i)->getName() == poi.at(j))
+					equals = true;
+			}
+			if(!equals)
+			{
+				poi.push_back(vertexSet.at(i)->getName());
+				poi.push_back(vertexSet.at(i)->freguesia);
+			}
+		}
+	}
+	return poi;
+}
+
+template<class T>
 void Graph<T>::generateParks(int num)
 {
 	int n = 0;
@@ -709,5 +758,32 @@ void Graph<T>::generateParks(int num)
 		}
 		if(n >= num)
 			return;
+	}
+}
+
+template<class T>
+void Graph<T>::generateFreguesias(vector<string> freguesias)
+{
+	vector<string> road;
+	vector<int> road_freguesia;
+	for(size_t i = 0; i < vertexSet.size(); i++)
+	{
+		bool equals = false;
+		for(size_t j = 0; j < road.size(); j++)
+		{
+			if (road.at(j)==vertexSet.at(i)->getName())
+			{
+				vertexSet.at(i)->freguesia = freguesias.at(road_freguesia.at(j));
+				equals = true;
+				break;
+			}
+		}
+		if(!equals)
+		{
+			road.push_back(vertexSet.at(i)->getName());
+			int r = rand()%freguesias.size();
+			road_freguesia.push_back(r);
+			vertexSet.at(i)->freguesia = freguesias.at(r);
+		}
 	}
 }

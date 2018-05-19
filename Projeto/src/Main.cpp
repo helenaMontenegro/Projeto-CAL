@@ -42,13 +42,16 @@ Main::Main()
 
 Main::Main(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in)
 {
-	gv = new GraphViewer(MAX_X, MAX_Y, false);
-	gv->createWindow(MAX_X, MAX_Y);
+	gv = new GraphViewer(600, 600, false);
+	gv->createWindow(600, 600);
 	gv->defineVertexColor("red");
 	gv->defineEdgeColor("black");
 	gv->defineEdgeCurved(false);
 	Graph<int> g(node_in, edge_in, poi_in, edge_poi_in);
 	g.generateParks(10);
+	vector<string> freg;
+	freg.push_back("Campanha"); freg.push_back("Paranhos");
+	g.generateFreguesias(freg);
 	graph = g;
 	int numEdges = addVertexes();
 	getchar();
@@ -93,13 +96,6 @@ int Main::addVertexes()
 			}
 		}
 	}
-	cout << endl << "Ruas disponiveis:" << endl;
-	for(size_t i = 0; i < labelsUsed.size(); i++)
-	{
-		if(labelsUsed.at(i) != "")
-			cout << labelsUsed.at(i) << endl;
-	}
-	cout << endl;
 	return numEdges-1;
 }
 
@@ -309,7 +305,6 @@ void turnRoadsToGraySimples(Main &m)
 
 int showPath(Main &m, int distance, bool fuel, int origin, int dest, int park, bool wantPark)
 {
-	cout << "wantPark = " << wantPark << endl;
 	vector<int> v, v1, v2;
 	string r = "Rua";
 	int p;
@@ -325,7 +320,8 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest, int park, b
 		return -1;
 	}
 	Vertex<int> *parque = m.graph.findVertex(p);
-	cout << "O parque mais indicado e o " << parque->getName()
+	if(!wantPark)
+		cout << "O parque mais indicado e o " << parque->getName()
 			<< " cuja distancia ao seu destino e " << parque->getDist()
 			<< " e cujo preco e " << parque->getPrice() << " euros." << endl << endl;
 	if(wantPark)
@@ -401,6 +397,105 @@ int showPath(Main &m, int distance, bool fuel, int origin, int dest, int park, b
 	return nEdges;
 }
 
+void displayDestination(Main &m)
+{
+	cout << "Destinos disponiveis:" << endl;
+	for(size_t i = 0; i < m.graph.getPointsOfInterest().size(); i++)
+	{
+		cout << m.graph.getPointsOfInterest().at(i);
+		if(i%2 == 1)
+			cout << endl;
+		else
+			cout << "  -  ";
+	}
+	cout << endl;
+}
+
+void displayOrigin(Main &m)
+{
+	cout << "Ruas disponiveis:" << endl;
+	for (size_t i = 0; i < m.graph.getRoads().size(); i++) {
+		cout << m.graph.getRoads().at(i);
+		if (i % 2 == 1)
+			cout << endl;
+		else
+			cout << "  -  ";
+	}
+	cout << endl;
+}
+
+long askOrigin(Main &m, bool aprox, string loc)
+{
+	string r = "Rua", p = "Parque", poi = "Ponto de Interesse";
+	string ori, freg;
+	long origin;
+	while (1) {
+		cout << "Qual a freguesia de " << loc << "?" << endl;
+		getline(cin, freg);
+		cout << "Qual o local de " << loc << "?" << endl;
+		getline(cin, ori);
+		if (!aprox) {
+			Vertex<int> *v;
+			if(loc == "rua")
+				v = m.graph.findPark(ori, freg);
+			else
+				v = m.graph.findVertex(ori, freg);
+			if (v == NULL || (loc == "origem" && v->getType() != r) ||
+					(loc == "destino" && v->getType() != poi))
+				cout << loc <<" invalida. Tente novamente." << endl;
+			else {
+				origin = v->getInfo();
+				break;
+			}
+		}
+		else
+		{
+			vector<string> names;
+			vector<Vertex<int> *> vertexes;
+			if(loc == "rua")
+			{
+				vertexes = m.graph.findAproximatePark(ori, freg);
+			} else {
+				vertexes = m.graph.findAproximateVertex(ori, freg);
+			}
+			for(size_t i = 0; i < vertexes.size(); i++)
+			{
+				if((loc == "origem" && vertexes.at(i)->getType() != r)
+						|| (loc == "destino" && vertexes.at(i)->getType() != poi)
+						|| vertexes.at(i)->getName() == "")
+				{
+					vertexes.erase(vertexes.begin()+i);
+					i--;
+				}
+			}
+			if (vertexes.size() != 0 && ori == vertexes.at(0)->getName() && freg == vertexes.at(0)->getFreguesia()) {
+				origin = vertexes.at(0)->getInfo();
+				break;
+			}
+			else if (vertexes.size() == 0)
+				cout << endl << "Rua nao encontrada. Sem opcoes alternativas. Tente novamente." << endl << endl;
+			else
+			{
+				cout << endl << "Rua nao encontrada. Opcoes alternativas:" << endl;
+				for (size_t i = 0; i < vertexes.size(); i++) {
+					bool found = false;
+					Vertex<int> *a = vertexes.at(i);
+					for (size_t j = 0; j < names.size(); j++) {
+						if (names.at(j) == a->getName() + "  -  "+ a->getFreguesia())
+							found = true;
+					}
+					if (!found) {
+						cout << a->getName() + "  -  "+ a->getFreguesia() << endl;
+						names.push_back(a->getName()+ "  -  "+ a->getFreguesia());
+					}
+				}
+				cout << "Tente novamente." << endl << endl;
+			}
+		}
+	}
+	return origin;
+}
+
 int complexo(bool aprox) {
 	ifstream in1("A.txt");
 	if (!in1) {
@@ -440,10 +535,8 @@ int complexo(bool aprox) {
 	in4.close();
 	in5.close();
 
-	cout << "Destinos disponiveis:" << endl;
-	cout << "Restaurante Tainha" << endl << "Lidl" << endl << "Pingo Doce"
-			<< endl << "Minipreco" << endl << "Locanda Real" << endl
-			<< "Restaurante 5 Amigos" << endl << endl;
+	displayOrigin(m);
+	displayDestination(m);
 
 	long origin, dest, park3;
 	string ori, desti, park1;
@@ -454,17 +547,7 @@ int complexo(bool aprox) {
 	bool fuel = false, park2 = false;
 	string r = "Rua", b = "Bomba de Gasolina", p = "Parque";
 	while (1) {
-		while (1) {
-			cout << "Qual a origem? ";
-			getline(cin, ori);
-			Vertex<int> *v = m.graph.findVertex(ori);
-			if (v == NULL || v->getType() != r)
-				cout << "Origem invalida. Tente novamente." << endl;
-			else {
-				origin = v->getInfo();
-				break;
-			}
-		}
+		origin = askOrigin(m,aprox, "origem");
 		while (1) {
 			cout << "Quer escolher a rua do parque onde quer estacionar? (S/N) "
 					<< endl;
@@ -479,72 +562,13 @@ int complexo(bool aprox) {
 			}
 			cout << "Resposta invalida. Tente novamente." << endl;
 		}
-		if(park2 && !aprox)
+		if(park2)
 		{
-			cout << "Qual a rua do parque? ";
-			getline(cin, park1);
-			Vertex<int> *v = m.graph.findPark(park1);
-			if (v == NULL)
-			{
-				cout << "Rua ou parque nao existente." << endl;
-				wantPark = false;
-			}
-			else
-				park3 = v->getInfo();
-		} else if(park2 && aprox)
-		{
-			int num_iter = 0;
-			while(num_iter < 3)
-			{
-			vector<string> names;
-			cout << "Qual a rua do parque? ";
-			getline(cin, park1);
-			vector<Vertex<int> *> vertexes = m.graph.findAproximatePark(park1);
-			if(park1 == vertexes.at(0)->getName())
-			{
-				park3 = vertexes.at(0)->getInfo();
-				break;
-			}
-			else{
-				if(num_iter == 2)
-				{
-					cout << "Numero de tentativas excedido. Prosseguindo." << endl;
-					wantPark = false;
-					break;
-				}
-				cout << "Rua nao encontrada. Opcoes alternativas:" << endl;
-			for(size_t i = 0; i < vertexes.size(); i++)
-			{
-				bool found = false;
-				Vertex<int> *a = vertexes.at(i);
-				for(size_t j = 0; j < names.size(); j++)
-				{
-					if(names.at(j) == a->getName())
-						found = true;
-				}
-				if(!found)
-				{
-					cout << a->getName() << endl;
-					names.push_back(a->getName());
-				}
-			}
-			cout << "Tente novamente." << endl;
-			}
-			}
+			park3 = askOrigin(m, aprox, "rua");
+			if(park3 == NULL)
+				park2 = false;
 		}
-
-		while (1) {
-			cout << "Qual o destino? ";
-			getline(cin, desti);
-			Vertex<int> *v = m.graph.findVertex(desti);
-			if (v == NULL || v->getType() == r || v->getType() == b
-					|| v->getType() == p)
-				cout << "Destino invalido. Tente novamente." << endl;
-			else {
-				dest = v->getInfo();
-				break;
-			}
-		}
+		dest = askOrigin(m, aprox, "destino");
 
 		while (1) {
 			cout << "Necessita de abastecer o seu carro? (S/N) " << endl;
@@ -558,7 +582,7 @@ int complexo(bool aprox) {
 			}
 			cout << "Resposta invalida. Tente novamente." << endl;
 		}
-		if(!wantPark)
+		if(!park2)
 		{
 		while (1) {
 			cout
@@ -588,11 +612,10 @@ int complexo(bool aprox) {
 			cout << "Resposta invalida. Tente novamente." << endl;
 		}
 		}
-		nEdges = showPath(m, distance, fuel, origin, dest, park3, wantPark);
+		nEdges = showPath(m, distance, fuel, origin, dest, park3, park2);
 		while (1) {
 			int answer;
-			cout
-					<< "Quer sair do programa(1) ou encontrar um novo trajeto(2)? ";
+			cout << "Quer sair do programa(1) ou encontrar um novo trajeto(2)? ";
 			cin >> answer;
 			if (cin.fail()) {
 				cin.clear();
@@ -607,7 +630,6 @@ int complexo(bool aprox) {
 			}
 			cout << "Resposta invalida. Tente novamente." << endl;
 		}
-
 	}
 	return 0;
 }

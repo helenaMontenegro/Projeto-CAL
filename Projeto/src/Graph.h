@@ -35,7 +35,8 @@ class Vertex {
 	double dist2 = 0;
 	Vertex<T> *path = NULL;
 	Vertex<T> *path2 = NULL;
-	int queueIndex = 0; 					//Required by MutablePriorityQueue
+	int queueIndex = 0; //Required by MutablePriorityQueue
+	string freguesia = "";
 	string type = "Rua";
 	string name = "";
 	double price;
@@ -55,6 +56,7 @@ public:
 	string getType() const;
 	void setName(string name);
 	string getName() const;
+	string getFreguesia() const;
 	void setPrice(double price);
 	double getPrice() const;
 	int getX() const;
@@ -105,8 +107,8 @@ public:
 	Graph();
 	Graph(ifstream &node_in, ifstream &edge_in, ifstream &poi_in, ifstream &edge_poi_in);
 	Vertex<T> *findVertex(const T &in) const;
-	Vertex<T> *findVertex(const string &local) const;
-	Vertex<T> *findPark(const string &local) const;
+	Vertex<T> *findVertex(const string &local, const string &freguesia) const;
+	Vertex<T> *findPark(const string &local, const string &freguesia) const;
 	bool addVertex(const T &in);
 	bool addEdge(const int id, const T &sourc, const T &dest, double w);
 	int getNumVertex() const;
@@ -120,8 +122,11 @@ public:
 	T getClosestPark() const;
 	T dijkstraBidirectionalPath(const T &origin, const T &dest);
 	void generateParks(int num);
-	vector<Vertex<T> *>findAproximatePark(const string &local) const;
-	vector<Vertex<T> *>findAproximateVertex(const string &local) const;
+	void generateFreguesias(vector<string> freguesias);
+	vector<string> getPointsOfInterest();
+	vector<string> getRoads();
+	vector<Vertex<T> *>findAproximatePark(const string &local, const string &freguesia) const;
+	vector<Vertex<T> *>findAproximateVertex(const string &local, const string &freguesia) const;
 };
 
 #endif /* GRAPH_H_ */
