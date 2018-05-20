@@ -750,6 +750,8 @@ int simples()
 }
 
 int main(){
+	srand(time(NULL));
+	
 	string exemplo, s = "simples", c = "complexo";
 	while (1) {
 		cout << "Que exemplo abrir? ('complexo' -> openStreetMaps; 'simples') ";
