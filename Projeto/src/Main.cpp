@@ -2,6 +2,7 @@
 #include "Graph.h"
 #include "Graph.cpp"
 #include "matcher.h"
+#include <ctime>
 #include <cstdio>
 #include "graphviewer.h"
 #include <fstream>

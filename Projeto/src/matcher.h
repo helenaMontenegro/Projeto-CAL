@@ -13,7 +13,7 @@
 #include "Graph.h"
 using namespace std;
 
-typedef pair<int, Vertex<int> * > APR;
+typedef pair<int, Vertex<int> * > Str;
 
 vector<int> prefixFunction(string pattern);
 
