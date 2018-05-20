@@ -2,8 +2,8 @@
 #include "matcher.h"
 #include <iostream>
 using namespace std;
-struct APR_Greater_Than {
-	bool operator()(APR a, APR b) const {
+struct Str_Greater_Than {
+	bool operator()(Str a, Str b) const {
 		return a.first > b.first;
 	}
 };
@@ -304,8 +304,8 @@ Vertex<T> * Graph<T>::findPark(const string &local, const string &freguesia) con
 template <class T>
 vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local, const string &freguesia) const {
 	vector<Vertex<T> *> result;
-	APR current;
-	vector<APR> heap;
+	Str current;
+	vector<Str> heap;
 	for (auto v : vertexSet)
 	{
 		if(v->type == "Parque"){
@@ -314,11 +314,11 @@ vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local, const stri
 			current.first = actualValue;
 			current.second = v;
 			heap.push_back(current);
-			make_heap(heap.begin(), heap.end(), APR_Greater_Than());
+			make_heap(heap.begin(), heap.end(), Str_Greater_Than());
 		}
 	}
-	heap = vector<APR>(heap.begin(), heap.begin()+5);
-	for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++) {
+	heap = vector<Str>(heap.begin(), heap.begin()+5);
+	for (vector<Str>::iterator it = heap.begin(); it != heap.end(); it++) {
 		if(it->first <= 15)
 			result.push_back(it->second);
 	}
@@ -328,8 +328,8 @@ vector<Vertex<T> *> Graph<T>::findAproximatePark(const string &local, const stri
 template <class T>
 vector<Vertex<T> *> Graph<T>::findAproximateVertex(const string &local, const string &freguesia) const {
 	vector<Vertex<T> *> result;
-	APR current;
-	vector<APR> heap;
+	Str current;
+	vector<Str> heap;
 	for (auto v : vertexSet)
 	{
 		if(v->getType() != "Parque"){
@@ -338,11 +338,11 @@ vector<Vertex<T> *> Graph<T>::findAproximateVertex(const string &local, const st
 			current.first = actualValue;
 			current.second = v;
 			heap.push_back(current);
-			make_heap(heap.begin(), heap.end()--, APR_Greater_Than());
+			make_heap(heap.begin(), heap.end()--, Str_Greater_Than());
 		}
 	}
-	heap = vector<APR>(heap.begin(), heap.begin() + 5);
-	for (vector<APR>::iterator it = heap.begin(); it != heap.end(); it++)
+	heap = vector<Str>(heap.begin(), heap.begin() + 5);
+	for (vector<Str>::iterator it = heap.begin(); it != heap.end(); it++)
 	{
 		if(it->first <= 15)
 			result.push_back(it->second);
