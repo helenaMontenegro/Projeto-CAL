@@ -1,6 +1,6 @@
 # CAL 2017/2018
 
-Curricular Unity: CAL - Algorithm Design and Analysis
+Curricular Unity: CAL - Algorithm Design and Analysis <br>
 Lective Year: 2017/2018
 
 Programming Language: C++
